@@ -1,0 +1,93 @@
+Données source de la zone|string
+Identifiant de la zone|string
+URL pérenne|url
+Type d'entité|wikibase-item
+Identifiant ISNI|external-id
+Source d'import|string
+Nom|string
+Prénom|string
+Date de naissance|time
+Date de décès|time
+Activité|string
+Titre de l'oeuvre|string
+Lanque de l'oeuvre|string
+Point d'accès en relation|string
+Zoneleader|string
+Zone001|string
+Zone003|string
+Zone004|string
+Zone005|string
+Zone006|string
+Zone007|string
+Zone008|string
+Zone010|string
+Zone033|string
+Zone035|string
+Zone100|string
+Zone101|string
+Zone102|string
+Zone103|string
+Zone106|string
+Zone120|string
+Zone123|string
+Zone128|string
+Zone150|string
+Zone152|string
+Zone200|string
+Zone210|string
+Zone215|string
+Zone230|string
+Zone240|string
+Zone300|string
+Zone305|string
+Zone320|string
+Zone330|string
+Zone340|string
+Zone356|string
+Zone400|string
+Zone410|string
+Zone415|string
+Zone430|string
+Zone440|string
+Zone450|string
+Zone500|string
+Zone510|string
+Zone515|string
+Zone516|string
+Zone520|string
+Zone530|string
+Zone540|string
+Zone550|string
+Zone580|string
+Zone676|string
+Zone686|string
+Zone700|string
+Zone710|string
+Zone715|string
+Zone730|string
+Zone740|string
+Zone801|string
+Zone810|string
+Zone815|string
+Zone820|string
+Zone822|string
+Zone830|string
+Zone856|string
+Zone898|string
+Zone899|string
+Zone900|string
+Zone901|string
+Zone902|string
+Zone910|string
+Zone911|string
+Zone912|string
+Zone915|string
+Zone916|string
+Zone917|string
+Zone930|string
+Zone931|string
+Zone932|string
+Zone940|string
+Zone941|string
+Zone942|string
+Zone951|string

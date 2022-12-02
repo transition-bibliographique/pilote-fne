@@ -151,4 +151,6 @@ public class DtoNoticeToItem {
         return itemDocumentBuilder;
     }
 
+    //TODO faire un addStmt pour les dates, avec Datamodel.makeTimeValue
+
 }

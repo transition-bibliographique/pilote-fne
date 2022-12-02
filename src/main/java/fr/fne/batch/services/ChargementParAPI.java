@@ -1,32 +1,15 @@
 package fr.fne.batch.services;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.StringReader;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import fr.fne.batch.model.autorite.Collection;
-import fr.fne.batch.model.autorite.Controlfield;
 import fr.fne.batch.model.autorite.Record;
 import fr.fne.batch.services.util.api.UtilAPI;
-import fr.fne.batch.services.util.entities.EntitiesJSOUP;
 import fr.fne.batch.services.util.entities.Format;
-
 import org.apache.commons.lang3.time.StopWatch;
-
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +17,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.wikidata.wdtk.datamodel.helpers.JsonSerializer;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 /*
@@ -112,6 +101,8 @@ public class ChargementParAPI {
                         params.put("format", "json");
                         params.put("data", JsonSerializer.getJsonString(itemDocument));
                         JSONObject json = util.postJson(params);
+
+                        logger.info("json : "+json.toString());
                     }
                 }
             }

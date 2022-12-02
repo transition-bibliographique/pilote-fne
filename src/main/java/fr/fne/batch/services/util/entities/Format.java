@@ -18,9 +18,10 @@ import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyIdValue;
 
 import java.io.File;
-import java.util.*;
-
-import static org.wikidata.wdtk.datamodel.implementation.DatatypeIdImpl.JSON_DT_STRING;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class Format {
@@ -52,8 +53,8 @@ public class Format {
         }
 
         // création des types d'entité
-//        createType(csrftoken,"Personne"); //Q1
-//        createType(csrftoken,"IPP"); //Q2
+        createType(csrftoken,"Personne"); //Q1
+        createType(csrftoken,"IPP"); //Q2
     }
 
     /*

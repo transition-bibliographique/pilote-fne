@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.wikidata.wdtk.datamodel.helpers.Datamodel;
 import org.wikidata.wdtk.datamodel.helpers.ItemDocumentBuilder;
 import org.wikidata.wdtk.datamodel.helpers.StatementBuilder;
-import org.wikidata.wdtk.datamodel.implementation.MonolingualTextValueImpl;
 import org.wikidata.wdtk.datamodel.implementation.PropertyIdValueImpl;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.datamodel.interfaces.ItemIdValue;
@@ -64,7 +63,7 @@ public class DtoNoticeToItem {
                             label += ", " + subfield.getValue();
                         }
                     }
-                    description = objectMapper.writeValueAsString(dataField);
+                    description = label; //objectMapper.writeValueAsString(dataField);
                 }
             }
 

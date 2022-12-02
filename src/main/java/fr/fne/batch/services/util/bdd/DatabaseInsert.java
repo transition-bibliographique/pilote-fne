@@ -159,8 +159,7 @@ public class DatabaseInsert {
         pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(NULL,?,?)");
 
 
-        //Si aucun Item n'a été créé : alors on insère une ligne dans wb_id_counters
-        /*
+        //Récupération du dernier Q créé (au départ il y a déjà les 2 Q : Personne et IPP)
         ResultSet rs = pstmtSelectLastItemId.executeQuery();
         if (rs.next()) {
             lastQNumber = rs.getInt(1);
@@ -170,13 +169,13 @@ public class DatabaseInsert {
         // Check if the Q-number is really unused
         while (itemExists("Q" + (lastQNumber + 1))) {
             lastQNumber++;
-        }*/
+        }
 
         //ACT : le format contient déjà des types d'entité, des Q, donc pas besoin de cet insert à l'initialisation :
-connection.createStatement().execute("INSERT INTO wb_id_counters VALUES(1, 'wikibase-item')");
+//connection.createStatement().execute("INSERT INTO wb_id_counters VALUES(1, 'wikibase-item')");
 
         final Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery("SELECT max(page_id) FROM page");
+        rs = stmt.executeQuery("SELECT max(page_id) FROM page");
         if (rs.next()) {
             pageId = rs.getLong(1);
         }
@@ -219,7 +218,7 @@ connection.createStatement().execute("INSERT INTO wb_id_counters VALUES(1, 'wiki
         rs.close();
 
         //ACT : contient label, description  et alias
-        //Ajout de ces 2 lignes car pas d'Item créé au départ
+        //Ajout de ces 2 lignes car pas d'Item/Q avec description et/ou alias créé au départ
         connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('description')");
         connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('alias')");
 

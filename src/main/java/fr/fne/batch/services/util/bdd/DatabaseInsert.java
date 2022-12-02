@@ -1,13 +1,16 @@
 package fr.fne.batch.services.util.bdd;
 
 import fr.fne.batch.services.ChargementParSQL;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -172,7 +175,7 @@ public class DatabaseInsert {
         }
 
         //ACT : le format contient déjà des types d'entité, des Q, donc pas besoin de cet insert à l'initialisation :
-//connection.createStatement().execute("INSERT INTO wb_id_counters VALUES(1, 'wikibase-item')");
+        //connection.createStatement().execute("INSERT INTO wb_id_counters VALUES(1, 'wikibase-item')");
 
         final Statement stmt = connection.createStatement();
         rs = stmt.executeQuery("SELECT max(page_id) FROM page");

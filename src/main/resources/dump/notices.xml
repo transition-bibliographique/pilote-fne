@@ -36,7 +36,7 @@
   <datafield tag="200" ind1=" " ind2="1">
     <subfield code="7">ba0yba0y</subfield>
     <subfield code="9">0</subfield>
-    <subfield code="a">Dupont2</subfield>
+    <subfield code="a">Dupont</subfield>
     <subfield code="b">J.</subfield>
     <subfield code="f">18..-18..</subfield>
   </datafield>
@@ -89,7 +89,7 @@
   <datafield tag="200" ind1=" " ind2="1">
     <subfield code="7">ba0yba0y</subfield>
     <subfield code="9">0</subfield>
-    <subfield code="a">Marin2</subfield>
+    <subfield code="a">Marin</subfield>
     <subfield code="b">Marina</subfield>
   </datafield>
   <datafield tag="340" ind1=" " ind2=" ">

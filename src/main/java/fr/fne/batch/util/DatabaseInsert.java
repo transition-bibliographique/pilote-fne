@@ -62,6 +62,7 @@ public class DatabaseInsert {
     private long wbxId = 0;
     private long wbxlId = 0;
     private long wbtlId = 0;
+    private long wbitId = 0;
     private Map<String, String> wbt_type = new HashMap<>();
 
     private int lastQNumber = 0;
@@ -168,7 +169,7 @@ public class DatabaseInsert {
         pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(?,?)");
         pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(?,?,?)");
         pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(?,?,?)");
-        pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(NULL,?,?)");
+        pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(?,?,?)");
 
 
         //Récupération du dernier Q créé (au départ il y a déjà les 2 Q : Personne et IPP)
@@ -232,6 +233,12 @@ public class DatabaseInsert {
         rs = stmt.executeQuery("SELECT max(wbtl_id) FROM wbt_term_in_lang");
         if (rs.next()) {
             wbtlId = rs.getLong(1);
+        }
+        rs.close();
+
+        rs = stmt.executeQuery("SELECT max(wbit_id) FROM wbt_item_terms");
+        if (rs.next()) {
+            wbitId = rs.getLong(1);
         }
         rs.close();
 
@@ -429,23 +436,25 @@ public class DatabaseInsert {
         wbxId++;
         pstmtInsert_wbt_text.setLong(1, wbxId);
         pstmtInsert_wbt_text.setString(2, texte);
-        pstmtInsert_wbt_text.executeUpdate();
+        executeUpdate(pstmtInsert_wbt_text);
 
         wbxlId++;
         pstmtInsert_wbt_text_in_lang.setLong(1, wbxlId);
         pstmtInsert_wbt_text_in_lang.setString(2, LANG);
         pstmtInsert_wbt_text_in_lang.setLong(3, wbxId);
-        pstmtInsert_wbt_text_in_lang.executeUpdate();
+        executeUpdate(pstmtInsert_wbt_text_in_lang);
 
         wbtlId++;
         pstmtInsert_wbt_term_in_lang.setLong(1, wbtlId);
         pstmtInsert_wbt_term_in_lang.setString(2, wbt_type.get(type));
         pstmtInsert_wbt_term_in_lang.setLong(3, wbxlId);
-        pstmtInsert_wbt_term_in_lang.executeUpdate();
+        executeUpdate(pstmtInsert_wbt_term_in_lang);
 
-        pstmtInsert_wbt_item_terms.setInt(1, lastQNumber);
-        pstmtInsert_wbt_item_terms.setLong(2, wbtlId);
-        pstmtInsert_wbt_item_terms.executeUpdate();
+        wbitId++;
+        pstmtInsert_wbt_item_terms.setLong(1, wbitId);
+        pstmtInsert_wbt_item_terms.setInt(2, lastQNumber);
+        pstmtInsert_wbt_item_terms.setLong(3, wbtlId);
+        executeUpdate(pstmtInsert_wbt_item_terms);
     }
 
     private void executeUpdate(final PreparedStatement pstmt) throws SQLException {

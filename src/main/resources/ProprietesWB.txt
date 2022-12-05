@@ -9,8 +9,9 @@ Prénom|string
 Date de naissance|time
 Date de décès|time
 Activité|string
+Note biographique|string
 Titre de l'oeuvre|string
-Lanque de l'oeuvre|string
+Langue|string
 Point d'accès en relation|string
 Zoneleader|string
 Zone001|string

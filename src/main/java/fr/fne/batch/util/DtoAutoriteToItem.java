@@ -52,6 +52,9 @@ public class DtoAutoriteToItem {
             //001
             String ppn = "";
 
+            //Leader :
+            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Zoneleader", r.getLeader(), "leader", objectMapper.writeValueAsString(r.getLeader()));
+
             //ControlFields :
             for (Controlfield c : r.getControlfieldList()){
                 if (c.getTag().equalsIgnoreCase("001")){
@@ -81,7 +84,7 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("101")) {
                     for (Subfield s : d.getSubfieldList()) {
                         if (s.getCode().equalsIgnoreCase("a")) {
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Lanque de l'oeuvre", s.getValue(), "101", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Langue", s.getValue(), "101", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
@@ -117,6 +120,30 @@ public class DtoAutoriteToItem {
                     for (Subfield s : d.getSubfieldList()){
                         if (s.getCode().equalsIgnoreCase("t")){
                             itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Titre de l'oeuvre", s.getValue(), "240", objectMapper.writeValueAsString(d));
+                        }
+                    }
+                }
+
+                if (d.getTag().equalsIgnoreCase("300")){
+                    for (Subfield s : d.getSubfieldList()){
+                        if (s.getCode().equalsIgnoreCase("a")){
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Note biographique", s.getValue(), "240", objectMapper.writeValueAsString(d));
+                        }
+                    }
+                }
+
+                if (d.getTag().equalsIgnoreCase("340")){
+                    for (Subfield s : d.getSubfieldList()){
+                        if (s.getCode().equalsIgnoreCase("a")){
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Activité", s.getValue(), "240", objectMapper.writeValueAsString(d));
+                        }
+                    }
+                }
+
+                if (d.getTag().equalsIgnoreCase("500")){
+                    for (Subfield s : d.getSubfieldList()){
+                        if (s.getCode().equalsIgnoreCase("3")){
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Point d'accès en relation", s.getValue(), "240", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
@@ -213,6 +240,8 @@ public class DtoAutoriteToItem {
         valeur = valeur.strip();
         //Pour les dates : 19XX; 19..,19?? :
         valeur = valeur.replaceAll("X|\\.|\\?","0");
+        //Pour les dates : 1877/11/01, 1958-0000 :
+        valeur = valeur.replaceAll("/|\\-","");
         try {
             if (Integer.parseInt(valeur)>0) {
                 if (valeur.length() == 8) {
@@ -233,7 +262,7 @@ public class DtoAutoriteToItem {
             }
         }
         catch (Exception e){
-            logger.error("addStmtTime erreur sur la date : "+valeur+" : "+e.getMessage());
+            logger.warn("addStmtTime, attention, pour la date : "+valeur+" : "+e.getMessage());
         }
 
         //Si la propriété ZoneXXX est connue :

@@ -63,6 +63,7 @@ public class DatabaseInsert {
     private long commentId = 0;
     private long contentId = 0;
     private int contentModelItem;
+    private long recentChangeId = 0;
 
     public DatabaseInsert(Connection con) throws SQLException, IOException {
         this.connection = con;
@@ -156,6 +157,7 @@ public class DatabaseInsert {
         pstmtSelectItem = connection.prepareStatement("SELECT * FROM page WHERE page_namespace=120 AND page_title=?");
 
         //ACT
+        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (?,?,?,'120',?,?,0,0,0,?,?,0,1,'mw.new',2,'172.18.0.1',0,?,0,0,NULL,'','')");
         pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(?,?)");
         pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(?,?,?)");
         pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(?,?,?)");
@@ -199,6 +201,12 @@ public class DatabaseInsert {
         rs = stmt.executeQuery("SELECT max(content_id) FROM content");
         if (rs.next()) {
             contentId = rs.getLong(1);
+        }
+        rs.close();
+
+        rs = stmt.executeQuery("SELECT max(rc_id) FROM recentchanges");
+        if (rs.next()) {
+            recentChangeId = rs.getLong(1);
         }
         rs.close();
 
@@ -381,18 +389,19 @@ public class DatabaseInsert {
             pstmtInsertSlots.setLong(3, textId);
             executeUpdate(pstmtInsertSlots);
 
-            pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (NULL,?,?,'120',?,?,0,0,0,?,?,0,1,'mw.new',2,'172.18.0.1',0,?,0,0,NULL,'','')");
             //ACT
-            pstmtInsertRecentChanges.setString(1, timestamp);
-            pstmtInsertRecentChanges.setInt(2, ACTOR);
+            recentChangeId++;
+            pstmtInsertRecentChanges.setLong(1, recentChangeId);
+            pstmtInsertRecentChanges.setString(2, timestamp);
+            pstmtInsertRecentChanges.setInt(3, ACTOR);
 
-            pstmtInsertRecentChanges.setString(3, itemId);
-            pstmtInsertRecentChanges.setLong(4, commentId);
+            pstmtInsertRecentChanges.setString(4, itemId);
+            pstmtInsertRecentChanges.setLong(5, commentId);
 
-            pstmtInsertRecentChanges.setLong(5, pageId);
             pstmtInsertRecentChanges.setLong(6, pageId);
+            pstmtInsertRecentChanges.setLong(7, pageId);
 
-            pstmtInsertRecentChanges.setInt(7, data.length());
+            pstmtInsertRecentChanges.setInt(8, data.length());
             executeUpdate(pstmtInsertRecentChanges);
 
             pstmtUpdateWbIdCounters.setInt(1, lastQNumber);

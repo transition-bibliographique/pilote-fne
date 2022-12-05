@@ -238,8 +238,8 @@ public class DtoAutoriteToItem {
         Integer mois = null;
         Integer jour = null;
         valeur = valeur.strip();
-        //Pour les dates : 19XX; 19..,19?? :
-        valeur = valeur.replaceAll("X|\\.|\\?","0");
+        //Pour les dates : 19xx; 19XX; 19..,19?? :
+        valeur = valeur.replaceAll("x|X|\\.|\\?","0");
         //Pour les dates : 1877/11/01, 1958-0000 :
         valeur = valeur.replaceAll("/|\\-","");
         try {

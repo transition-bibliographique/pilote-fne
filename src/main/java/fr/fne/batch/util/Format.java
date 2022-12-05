@@ -1,6 +1,5 @@
-package fr.fne.batch.services.util.entities;
+package fr.fne.batch.util;
 
-import fr.fne.batch.services.util.api.UtilAPI;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,7 +27,7 @@ public class Format {
     private final Logger logger = LoggerFactory.getLogger(Format.class);
 
     @Autowired
-    private UtilAPI util;
+    private ApiWB util;
 
     /*
      Création du format :

@@ -1,4 +1,4 @@
-package fr.fne.batch.services.util.bdd;
+package fr.fne.batch.util;
 
 import fr.fne.batch.services.ChargementParSQL;
 import org.apache.commons.codec.digest.DigestUtils;

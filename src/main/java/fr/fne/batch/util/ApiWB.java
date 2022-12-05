@@ -1,9 +1,4 @@
-package fr.fne.batch.services.util.api;
-
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.util.LinkedHashMap;
-import java.util.Map;
+package fr.fne.batch.util;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -18,9 +13,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 @Service
-public class UtilAPI {
-	private final Logger logger = LoggerFactory.getLogger(UtilAPI.class);
+public class ApiWB {
+	private final Logger logger = LoggerFactory.getLogger(ApiWB.class);
 
 	@Value("${wikibase.url}")
 	private String urlWikiBase;

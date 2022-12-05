@@ -6,8 +6,9 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import fr.fne.batch.model.autorite.Collection;
 import fr.fne.batch.model.autorite.Record;
-import fr.fne.batch.services.util.api.UtilAPI;
-import fr.fne.batch.services.util.entities.Format;
+import fr.fne.batch.util.ApiWB;
+import fr.fne.batch.util.DtoAutoriteToItem;
+import fr.fne.batch.util.Format;
 import org.apache.commons.lang3.time.StopWatch;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -34,13 +35,13 @@ public class ChargementParAPI {
     private final Logger logger = LoggerFactory.getLogger(ChargementParSQL.class);
 
     @Autowired
-    private UtilAPI util;
+    private ApiWB apiWB;
 
     @Autowired
     private Format format;
 
     @Autowired
-    private DtoNoticeToItem dtoNoticeToItem;
+    private DtoAutoriteToItem dtoAutoriteToItem;
 
     @Value("${abes.dump}")
     private String cheminDump;
@@ -53,7 +54,7 @@ public class ChargementParAPI {
 
         try {
             // Connextion à Wikibase et récupération du csrftoken
-            String csrftoken = util.connexionWB();
+            String csrftoken = apiWB.connexionWB();
             logger.info("The csrftoken is : " + csrftoken);
 
             //Récupération de toutes les propriétés du WB
@@ -73,10 +74,10 @@ public class ChargementParAPI {
             stopWatch.start();
 
             //Test chargement par l'API WB
-            String entity = null;
 
             //Utilisation d'un dump des notices (5000 notices par fichier):
-            //Le dump est disponible ici : /applis/portail/SitemapNoticesSudoc/noticesautorites/dump
+            //Le dump complet est disponible ici (Abes, sur KAT): /applis/portail/SitemapNoticesSudoc/noticesautorites/dump/
+            //Pour tester : utiliser l'échantillon qui se trouve dans resources/dump/
             File[] fichiers = new File(cheminDump).listFiles();
 
             int lanceCommit = 0;
@@ -91,7 +92,7 @@ public class ChargementParAPI {
                 for(Record record : collection.getRecordList()){
                     recordNb++;
 
-                    ItemDocument itemDocument = dtoNoticeToItem.unmarshallerNotice(record, props);
+                    ItemDocument itemDocument = dtoAutoriteToItem.unmarshallerNotice(record, props);
 
                     if (itemDocument != null) {
                         Map<String, String> params = new LinkedHashMap<>();
@@ -100,7 +101,7 @@ public class ChargementParAPI {
                         params.put("token", csrftoken);
                         params.put("format", "json");
                         params.put("data", JsonSerializer.getJsonString(itemDocument));
-                        JSONObject json = util.postJson(params);
+                        JSONObject json = apiWB.postJson(params);
 
                         logger.info("json : "+json.toString());
                     }

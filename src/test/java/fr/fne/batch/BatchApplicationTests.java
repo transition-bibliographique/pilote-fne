@@ -1,8 +1,5 @@
 package fr.fne.batch;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.wikidata.wdtk.datamodel.implementation.DatatypeIdImpl.JSON_DT_STRING;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -10,12 +7,10 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import fr.fne.batch.model.autorite.Collection;
 import fr.fne.batch.model.autorite.Controlfield;
 import fr.fne.batch.model.autorite.Record;
-import fr.fne.batch.services.util.api.UtilAPI;
+import fr.fne.batch.util.ApiWB;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.wikidata.wdtk.datamodel.helpers.Datamodel;
 import org.wikidata.wdtk.datamodel.helpers.ItemDocumentBuilder;
@@ -33,14 +28,16 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.wikidata.wdtk.datamodel.implementation.DatatypeIdImpl.JSON_DT_STRING;
+
 @SpringBootTest
 @Slf4j
 class BatchApplicationTests {
 	@Autowired
-	private UtilAPI util;
+	private ApiWB apiWB;
 
 
-	@Test
+	//@Test
 	void testJackson(){
 		try {
 			//Utilisation d'un dump des notices (5000 notices par fichier):
@@ -73,7 +70,7 @@ class BatchApplicationTests {
 		}
 	}
 
-	@Test
+	//@Test
     /*
 	Test utilisation des librairies WDTK
      */
@@ -130,13 +127,13 @@ class BatchApplicationTests {
 		}
 	}
 
-	@Test
+	//@Test
     /*
     Création d'une propriété avec un datatype string
      */
 	void createPropertyString() {
 		try {
-			String csrftoken = util.connexionWB();
+			String csrftoken = apiWB.connexionWB();
 
 			Map<String, String> params = new LinkedHashMap<>();
 			params = new LinkedHashMap<>();
@@ -146,7 +143,7 @@ class BatchApplicationTests {
 			params.put("format", "json");
 			params.put("data", "{\"labels\":{\"fr\":{\"language\":\"fr\",\"value\":\"Propriété String\"}},\"datatype\":\"string\"}");
 
-			JSONObject json = util.postJson(params);
+			JSONObject json = apiWB.postJson(params);
 			log.info("==>" + json.getJSONObject("entity").optString("id"));
 		}
 		catch (Exception e){
@@ -154,13 +151,13 @@ class BatchApplicationTests {
 		}
 	}
 
-	@Test
+	//@Test
 	/*
     Création d'une propriété avec un datatype url
      */
 	void createPropertyUrl() {
 		try {
-			String csrftoken = util.connexionWB();
+			String csrftoken = apiWB.connexionWB();
 
 			Map<String, String> params = new LinkedHashMap<>();
 			params = new LinkedHashMap<>();
@@ -170,7 +167,7 @@ class BatchApplicationTests {
 			params.put("format", "json");
 			params.put("data", "{\"labels\":{\"fr\":{\"language\":\"fr\",\"value\":\"Propriété URL\"}},\"datatype\":\"url\"}");
 
-			JSONObject json = util.postJson(params);
+			JSONObject json = apiWB.postJson(params);
 			log.info("==>" + json.getJSONObject("entity").optString("id"));
 		}
 		catch (Exception e){
@@ -178,13 +175,13 @@ class BatchApplicationTests {
 		}
 	}
 
-	@Test
+	//@Test
      /*
     Création d'un item avec juste un label (pour créer le type d'entité "Personne")
     */
 	void createItem() {
 		try {
-			String csrftoken = util.connexionWB();
+			String csrftoken = apiWB.connexionWB();
 
 			Map<String, String> params = new LinkedHashMap<>();
 			params = new LinkedHashMap<>();
@@ -196,7 +193,7 @@ class BatchApplicationTests {
 					"{\"labels\":{\"fr\":{\"language\":\"fr\",\"value\":\"IPP\"}}}");
 
 			//log.info("data : "+params.get("data"));
-			JSONObject json = util.postJson(params);
+			JSONObject json = apiWB.postJson(params);
 			log.info("==>" + json.toString());
 		}
 		catch (Exception e){
@@ -204,14 +201,14 @@ class BatchApplicationTests {
 		}
 	}
 
-    @Test
+    //@Test
      /*
     Test ajout des qualificatifs : "regroup" (string) = P490 et ordre (string) = P492
     En suivant le schéma de données json décrit ici : https://www.mediawiki.org/wiki/Wikibase/DataModel/JSON#Qualifiers
     */
     void createItemWithQualifiers() {
         try {
-            String csrftoken = util.connexionWB();
+            String csrftoken = apiWB.connexionWB();
 
             Map<String, String> params = new LinkedHashMap<>();
             params = new LinkedHashMap<>();
@@ -241,7 +238,7 @@ class BatchApplicationTests {
                     "\"labels\":{\"fr\":{\"language\":\"fr\",\"value\":\"Belgique\"}}}");
 
             //log.info("data : "+params.get("data"));
-            JSONObject json = util.postJson(params);
+            JSONObject json = apiWB.postJson(params);
             log.info("==>" + json.toString());
         }
         catch (Exception e){

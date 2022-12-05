@@ -21,7 +21,6 @@
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<commons-io.version>2.11.0</commons-io.version>
 		<jackson.version>2.14.1</jackson.version>
-		<!--lifecycle-mapping-plugin.version>1.0.0</lifecycle-mapping-plugin.version-->
 		<wikidataToolkitVersion>0.14.3</wikidataToolkitVersion>
 	</properties>
 
@@ -35,29 +34,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 
-	    <dependency>
-		    <groupId>org.jsoup</groupId>
-		    <artifactId>jsoup</artifactId>
-		    <version>1.8.3</version>
-    	</dependency>
 		<dependency>
 		    <groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20190722</version>
+			<version>20220924</version>
     	</dependency>
-		
-		<dependency>
-	    	<groupId>xalan</groupId>
-	    	<artifactId>xalan</artifactId>
-	    	<version>2.7.2</version>
-	    </dependency>
 
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -96,7 +83,6 @@
 			<artifactId>jaxb-runtime</artifactId>
 			<version>4.0.1</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>

@@ -22,6 +22,13 @@ import java.util.UUID;
 /**
  * Très largement inspiré de ce dépôt : https://github.com/jze/wikibase-insert
  * Et mis à jour en suivant les requêtes SQL de ce dépôt : https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/dbconnection.py
+ *
+ * Pour indexer dans Elastic Search :
+ * Source : https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/raiser.py
+ * Depuis le conteneur Wikibase :
+ * php extensions/CirrusSearch/maintenance/ForceSearchIndex.php --skipLinks –indexOnSkip
+ * php extensions/CirrusSearch/maintenance/ForceSearchIndex.php –skipParse
+ * php maintenance/runJobs.php
  */
 public class DatabaseInsert {
 

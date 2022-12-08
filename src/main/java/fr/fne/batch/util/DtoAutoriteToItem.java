@@ -148,13 +148,8 @@ public class DtoAutoriteToItem {
                     }
                 }
 
-                //Ajout de statements pour tous les dataFields (la valeur affichée est la $a):
-                for (Subfield s : d.getSubfieldList()){
-                    if (s.getCode().equalsIgnoreCase("a")){
-                        itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Zone"+d.getTag(), s.getValue(), d.getTag(), objectMapper.writeValueAsString(d));
-                    }
-                }
-
+                //Ajout de statements pour tous les dataFields (la valeur affichée est celle du premier subfield trouvé d.getSubfieldList().get(0).getValue()):
+                itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Zone"+d.getTag(), d.getSubfieldList().get(0).getValue(), d.getTag(), objectMapper.writeValueAsString(d));
             }
 
             //Ajout du label construit : 200$a, 200$b, 200$f [001]

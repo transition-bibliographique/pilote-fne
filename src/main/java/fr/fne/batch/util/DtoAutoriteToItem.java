@@ -26,15 +26,20 @@ public class DtoAutoriteToItem {
     @Value("${wikibase.iri}")
     private String iriWikiBase;
 
+    //Map contenant les labels des propriétés utilisées (en fr, ex : Nom) et leur identifiant correspondant (ex : P1)
+    private Map<String,String> props;
+
     /**
      * DTO :
      * Notice MarcXML vers ItemDocument WB
      * @param r
-     * @param props
+     * @param proprietes
      * @return
      */
-    public ItemDocument unmarshallerNotice(Record r, Map<String,String> props)
+    public ItemDocument unmarshallerNotice(Record r, Map<String,String> proprietes)
     {
+        props = proprietes;
+
         ItemDocumentBuilder itemDocumentBuilder = ItemDocumentBuilder.forItemId(ItemIdValue.NULL);
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -53,7 +58,7 @@ public class DtoAutoriteToItem {
             String ppn = "";
 
             //Leader :
-            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Zoneleader", r.getLeader(), "leader", objectMapper.writeValueAsString(r.getLeader()));
+            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Zoneleader", r.getLeader(), "leader", objectMapper.writeValueAsString(r.getLeader()));
 
             //ControlFields :
             for (Controlfield c : r.getControlfieldList()){
@@ -63,11 +68,11 @@ public class DtoAutoriteToItem {
 
                 if (c.getTag().equalsIgnoreCase("003")){
                     itemDocumentBuilder = itemDocumentBuilder.withDescription(c.getValue(), "fr");
-                    itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"URL pérenne", c.getValue(), "003", objectMapper.writeValueAsString(c));
+                    itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"URL pérenne", c.getValue(), "003", objectMapper.writeValueAsString(c));
                 }
 
                 //Ajout de statements pour tous les controlFields :
-                itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Zone"+c.getTag(),c.getValue(),c.getTag(), objectMapper.writeValueAsString(c));
+                itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Zone"+c.getTag(),c.getValue(),c.getTag(), objectMapper.writeValueAsString(c));
             }
 
             //DataFields :
@@ -76,7 +81,7 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("010")) {
                     for (Subfield s : d.getSubfieldList()) {
                         if (s.getCode().equalsIgnoreCase("a")) {
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Identifiant ISNI", s.getValue(), "010", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Identifiant ISNI", s.getValue(), "010", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
@@ -84,7 +89,7 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("101")) {
                     for (Subfield s : d.getSubfieldList()) {
                         if (s.getCode().equalsIgnoreCase("a")) {
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Langue", s.getValue(), "101", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Langue", s.getValue(), "101", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
@@ -92,10 +97,10 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("103")) {
                     for (Subfield s : d.getSubfieldList()) {
                         if (s.getCode().equalsIgnoreCase("a")) {
-                            itemDocumentBuilder = this.addStmtTime(itemDocumentBuilder,props,"Date de naissance", s.getValue(), "103", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtTime(itemDocumentBuilder,"Date de naissance", s.getValue(), "103", objectMapper.writeValueAsString(d));
                         }
                         else if (s.getCode().equalsIgnoreCase("b")) {
-                            itemDocumentBuilder = this.addStmtTime(itemDocumentBuilder,props,"Date de décès", s.getValue(), "103", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtTime(itemDocumentBuilder,"Date de décès", s.getValue(), "103", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
@@ -104,11 +109,11 @@ public class DtoAutoriteToItem {
                     for (Subfield s : d.getSubfieldList()){
                         if (s.getCode().equalsIgnoreCase("a")){
                             label += s.getValue();
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Nom", s.getValue(), "200", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Nom", s.getValue(), "200", objectMapper.writeValueAsString(d));
                         }
                         else if (s.getCode().equalsIgnoreCase("b")){
                             label += ", " + s.getValue();
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Prénom", s.getValue(), "200", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Prénom", s.getValue(), "200", objectMapper.writeValueAsString(d));
                         }
                         else if (s.getCode().equalsIgnoreCase("f")){
                             label += ", " + s.getValue();
@@ -119,7 +124,7 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("240")){
                     for (Subfield s : d.getSubfieldList()){
                         if (s.getCode().equalsIgnoreCase("t")){
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Titre de l'oeuvre", s.getValue(), "240", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Titre de l'oeuvre", s.getValue(), "240", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
@@ -127,7 +132,7 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("300")){
                     for (Subfield s : d.getSubfieldList()){
                         if (s.getCode().equalsIgnoreCase("a")){
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Note biographique", s.getValue(), "240", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Note biographique", s.getValue(), "240", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
@@ -135,7 +140,7 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("340")){
                     for (Subfield s : d.getSubfieldList()){
                         if (s.getCode().equalsIgnoreCase("a")){
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Activité", s.getValue(), "240", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Activité", s.getValue(), "240", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
@@ -143,13 +148,13 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("500")){
                     for (Subfield s : d.getSubfieldList()){
                         if (s.getCode().equalsIgnoreCase("3")){
-                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Point d'accès en relation", s.getValue(), "240", objectMapper.writeValueAsString(d));
+                            itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Point d'accès en relation", s.getValue(), "240", objectMapper.writeValueAsString(d));
                         }
                     }
                 }
 
                 //Ajout de statements pour tous les dataFields (la valeur affichée est celle du premier subfield trouvé d.getSubfieldList().get(0).getValue()):
-                itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,props,"Zone"+d.getTag(), d.getSubfieldList().get(0).getValue(), d.getTag(), objectMapper.writeValueAsString(d));
+                itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Zone"+d.getTag(), d.getSubfieldList().get(0).getValue(), d.getTag(), objectMapper.writeValueAsString(d));
             }
 
             //Ajout du label construit : 200$a, 200$b, 200$f [001]
@@ -166,7 +171,7 @@ public class DtoAutoriteToItem {
     //Ajoute un statement de datatype String à "itemDocumentBuild"
     //Utilise la map "props" pour les correspondances (P1,..), de la propriété à utiliser ("propriete") de valeur ("valeur").
     //La variable "marc" est le nom de la zone de la notice pour la référence ajoutée, et "valeurBrute" est la zone en entier, aussi pour la référence
-    private ItemDocumentBuilder addStmtString(ItemDocumentBuilder itemDocumentBuilder, Map<String,String> props, String propriete, String valeur, String marc, String valeurBrute){
+    private ItemDocumentBuilder addStmtString(ItemDocumentBuilder itemDocumentBuilder, String propriete, String valeur, String marc, String valeurBrute){
         //"references": [{
         //    "P2": ["Marc_XXX"],
         //    "P1": ["<copie intégrale de la zone XXX>"]
@@ -215,7 +220,7 @@ public class DtoAutoriteToItem {
     //Ajoute un statement de datatype Time à "itemDocumentBuild"
     //Utilise la map "props" pour les correspondances (P1,..), de la propriété à utiliser ("propriete") de valeur ("valeur").
     //La variable "marc" est le nom de la zone de la notice pour la référence ajoutée, et "valeurBrute" est la zone en entier, aussi pour la référence
-    private ItemDocumentBuilder addStmtTime(ItemDocumentBuilder itemDocumentBuilder, Map<String,String> props, String propriete, String valeur, String marc, String valeurBrute){
+    private ItemDocumentBuilder addStmtTime(ItemDocumentBuilder itemDocumentBuilder, String propriete, String valeur, String marc, String valeurBrute){
         //"references": [{
         //    "P2": ["Marc_XXX"],
         //    "P1": ["<copie intégrale de la zone XXX>"]
@@ -237,6 +242,8 @@ public class DtoAutoriteToItem {
         valeur = valeur.replaceAll("x|X|\\.|\\?","0");
         //Pour les dates : 1877/11/01, 1958-0000 :
         valeur = valeur.replaceAll("/|\\-","");
+        //Pour les dates : 1560    0 :
+        valeur = valeur.replace(" 0","").trim();
         try {
             if (Integer.parseInt(valeur)>0) {
                 if (valeur.length() == 8) {

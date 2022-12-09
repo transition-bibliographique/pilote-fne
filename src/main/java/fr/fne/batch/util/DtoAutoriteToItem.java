@@ -154,7 +154,9 @@ public class DtoAutoriteToItem {
                 }
 
                 //Ajout de statements pour tous les dataFields (la valeur affichée est celle du premier subfield trouvé d.getSubfieldList().get(0).getValue()):
-                itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Zone"+d.getTag(), d.getSubfieldList().get(0).getValue(), d.getTag(), objectMapper.writeValueAsString(d));
+                if (d.getSubfieldList().size()>0) {
+                    itemDocumentBuilder = this.addStmtString(itemDocumentBuilder, "Zone" + d.getTag(), d.getSubfieldList().get(0).getValue(), d.getTag(), objectMapper.writeValueAsString(d));
+                }
             }
 
             //Ajout du label construit : 200$a, 200$b, 200$f [001]
@@ -248,12 +250,12 @@ public class DtoAutoriteToItem {
             if (Integer.parseInt(valeur)>0) {
                 if (valeur.length() == 8) {
                     annee = Integer.parseInt(valeur.substring(0,4));
-                    mois = Integer.parseInt(valeur.substring(4,5));
-                    jour = Integer.parseInt(valeur.substring(6,7));
+                    mois = Integer.parseInt(valeur.substring(4,6));
+                    jour = Integer.parseInt(valeur.substring(6,8));
                 }
                 else if (valeur.length() == 6){
                     annee = Integer.parseInt(valeur.substring(0,4));
-                    mois = Integer.parseInt(valeur.substring(4,5));
+                    mois = Integer.parseInt(valeur.substring(4,6));
                     jour=1;
                 }
                 else if (valeur.length() == 4){

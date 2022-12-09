@@ -132,6 +132,10 @@ public class ChargementParSQL {
              * php extensions/CirrusSearch/maintenance/ForceSearchIndex.php --skipLinks –indexOnSkip
              * php extensions/CirrusSearch/maintenance/ForceSearchIndex.php –skipParse
              * php maintenance/runJobs.php
+             *
+             * Pour indexer dans WDQS (SPARQL) :
+             * Depuis le conteneur WDQS :
+             * /wdqs/runUpdate.sh -h http://${WDQS_HOST}:${WDQS_PORT} -- --wikibaseUrl ${WIKIBASE_SCHEME}://${WIKIBASE_HOST} --conceptUri ${WIKIBASE_SCHEME}://${WIKIBASE_HOST} --entityNamespaces ${WDQS_ENTITY_NAMESPACES} --init --start 20210315120000
             */
 
         } catch (Exception e) {

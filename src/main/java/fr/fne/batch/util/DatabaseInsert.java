@@ -292,7 +292,8 @@ public class DatabaseInsert {
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 
-        final String timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).replaceAll("[T:-]", "").substring(0, 14);
+        //Moins une heure : pour que le wdqs-updater ne traite pas ces insertions
+        final String timestamp = LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_DATE_TIME).replaceAll("[T:-]", "").substring(0, 14);
 
         lastQNumber++;
 

@@ -1,2 +1,17 @@
 /src/main/resources/application.properties
 .idea
+.vscode
+.checkstyle
+target
+.project
+*.class
+.orig
+*.jar
+.classpath
+bin
+.settings
+classes
+*.versionsBackup
+*.log
+.springBeans
+.factorypath

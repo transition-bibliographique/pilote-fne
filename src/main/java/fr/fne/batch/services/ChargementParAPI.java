@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ChargementParAPI {
 
-    private final Logger logger = LoggerFactory.getLogger(ChargementParSQL.class);
+    private final Logger logger = LoggerFactory.getLogger(ChargementParAPI.class);
 
     @Autowired
     private ApiWB apiWB;

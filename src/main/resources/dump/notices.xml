@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><collection> <record>
+  <leader>     dx  a22     3  45  </leader>
+  <controlfield tag="001">233906533</controlfield>
+  <controlfield tag="003">http://www.idref.fr/233906533</controlfield>
+  <controlfield tag="004">20190211</controlfield>
+  <controlfield tag="005">20190211102326.000</controlfield>
+  <controlfield tag="006">372612103</controlfield>
+  <controlfield tag="007">372612103</controlfield>
+  <controlfield tag="008">Tp5</controlfield>
+  <datafield tag="010" ind1=" " ind2=" ">
+    <subfield code="a">0000000385709579</subfield>
+    <subfield code="2">ISNI</subfield>
+    <subfield code="d">20190719</subfield>
+  </datafield>
+  <datafield tag="100" ind1=" " ind2=" ">
+    <subfield code="a">20190211afrey50      ba0</subfield>
+  </datafield>
+  <datafield tag="101" ind1=" " ind2=" ">
+    <subfield code="a">fre</subfield>
+  </datafield>
+  <datafield tag="102" ind1=" " ind2=" ">
+    <subfield code="a">FR</subfield>
+  </datafield>
+  <datafield tag="103" ind1=" " ind2=" ">
+    <subfield code="a"> 18XX     </subfield>
+    <subfield code="b"> 18XX     </subfield>
+  </datafield>
+  <datafield tag="106" ind1=" " ind2=" ">
+    <subfield code="a">0</subfield>
+    <subfield code="b">#</subfield>
+    <subfield code="c">0</subfield>
+  </datafield>
+  <datafield tag="152" ind1=" " ind2=" ">
+    <subfield code="a">AFNOR</subfield>
+  </datafield>
+  <datafield tag="200" ind1=" " ind2="1">
+    <subfield code="7">ba0yba0y</subfield>
+    <subfield code="9">0</subfield>
+    <subfield code="a">Dupont</subfield>
+    <subfield code="b">J.</subfield>
+    <subfield code="f">18..-18..</subfield>
+  </datafield>
+  <datafield tag="340" ind1=" " ind2=" ">
+    <subfield code="7">ba0yba0y</subfield>
+    <subfield code="a">Docteur en médecine</subfield>
+  </datafield>
+  <datafield tag="801" ind1=" " ind2="3">
+    <subfield code="a">FR</subfield>
+    <subfield code="b">Abes</subfield>
+    <subfield code="c">20190211</subfield>
+    <subfield code="g">AFNOR</subfield>
+  </datafield>
+  <datafield tag="810" ind1=" " ind2=" ">
+    <subfield code="a">Des ulcérations du col de l&apos;utérus : Faculté de médecine de Paris. Concours pour l&apos;agrégation 1835 / par J. Dupont. - Paris : Imprimerie de Migneret, 1835.</subfield>
+  </datafield>
+  <datafield tag="900" ind1=" " ind2=" ">
+    <subfield code="a">Dupont, J. (18..-18..)</subfield>
+  </datafield>
+</record>
+<record>
+  <leader>     dx  a22     3  45  </leader>
+  <controlfield tag="001">233907734</controlfield>
+  <controlfield tag="003">http://www.idref.fr/233907734</controlfield>
+  <controlfield tag="004">20190211</controlfield>
+  <controlfield tag="005">20190211104526.000</controlfield>
+  <controlfield tag="006">920502102</controlfield>
+  <controlfield tag="007">920502102</controlfield>
+  <controlfield tag="008">Tp5</controlfield>
+  <datafield tag="100" ind1=" " ind2=" ">
+    <subfield code="a">20190211afrey50      ba0</subfield>
+  </datafield>
+  <datafield tag="101" ind1=" " ind2=" ">
+    <subfield code="a">rum</subfield>
+  </datafield>
+  <datafield tag="102" ind1=" " ind2=" ">
+    <subfield code="a">RO</subfield>
+  </datafield>
+  <datafield tag="106" ind1=" " ind2=" ">
+    <subfield code="a">0</subfield>
+    <subfield code="b">1</subfield>
+    <subfield code="c">0</subfield>
+  </datafield>
+  <datafield tag="120" ind1=" " ind2=" ">
+    <subfield code="a">aa</subfield>
+  </datafield>
+  <datafield tag="152" ind1=" " ind2=" ">
+    <subfield code="a">AFNOR</subfield>
+  </datafield>
+  <datafield tag="200" ind1=" " ind2="1">
+    <subfield code="7">ba0yba0y</subfield>
+    <subfield code="9">0</subfield>
+    <subfield code="a">Marin</subfield>
+    <subfield code="b">Marina</subfield>
+  </datafield>
+  <datafield tag="340" ind1=" " ind2=" ">
+    <subfield code="7">ba0yba0y</subfield>
+    <subfield code="a">Enseignant-chercheur à l&apos;Université de Brest, membre du Bureau de l&apos;Association Européenne de Terminologie</subfield>
+  </datafield>
+  <datafield tag="801" ind1=" " ind2="3">
+    <subfield code="a">FR</subfield>
+    <subfield code="b">Abes</subfield>
+    <subfield code="c">20190211</subfield>
+    <subfield code="g">AFNOR</subfield>
+  </datafield>
+  <datafield tag="810" ind1=" " ind2=" ">
+    <subfield code="a">Terminologie(s) et traduction : les termes de l&apos;environnement et l&apos;environnement des termes / Marina Marin &amp; Jean Henri, 2018</subfield>
+  </datafield>
+  <datafield tag="900" ind1=" " ind2=" ">
+    <subfield code="a">Marin, Marina</subfield>
+  </datafield>
+</record>
+</collection>

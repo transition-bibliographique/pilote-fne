@@ -1,0 +1,868 @@
+{
+    "zones": [
+        {
+            "code": "001",
+            "sousZones": [
+                {
+                    "code": "001$a",
+                    "valeur": "P_11907966"
+                }
+            ]
+        },
+        {
+            "code": "010",
+            "sousZones": [
+                {
+                    "code": "010$a",
+                    "valeur": "Identité publique d'une personne"
+                },
+                {
+                    "code": "010$n",
+                    "valeur": "RDA-FR"
+                },
+                {
+                    "code": "010$e",
+                    "valeur": "latin étendu"
+                },
+                {
+                    "code": "010$l",
+                    "valeur": "français"
+                }
+            ]
+        },
+        {
+            "code": "01A",
+            "sousZones": [
+                {
+                    "code": "01A$g",
+                    "valeur": "<Masculin>"
+                }
+            ]
+        },
+        {
+            "code": "01P",
+            "sousZones": [
+                {
+                    "code": "01P$c",
+                    "valeur": "Nom réel"
+                }
+            ]
+        },
+        {
+            "code": "02N",
+            "sousZones": [
+                {
+                    "code": "02N$a",
+                    "valeur": "0000000121200982"
+                },
+                {
+                    "code": "02N$B",
+                    "valeur": "<ISNI chargé à partir de la base ISNI>"
+                },
+                {
+                    "code": "02N$d",
+                    "valeur": "20131217"
+                }
+            ]
+        },
+        {
+            "code": "040",
+            "sousZones": [
+                {
+                    "code": "040$p",
+                    "valeur": "<France>"
+                }
+            ]
+        },
+        {
+            "code": "040",
+            "sousZones": [
+                {
+                    "code": "040$q",
+                    "valeur": "<Naissance>"
+                },
+                {
+                    "code": "040$d",
+                    "valeur": "18020226"
+                }
+            ]
+        },
+        {
+            "code": "040",
+            "sousZones": [
+                {
+                    "code": "040$q",
+                    "valeur": "<Décès>"
+                },
+                {
+                    "code": "040$d",
+                    "valeur": "18850522"
+                }
+            ]
+        },
+        {
+            "code": "040",
+            "sousZones": [
+                {
+                    "code": "040$q",
+                    "valeur": "<Naissance>"
+                },
+                {
+                    "code": "040$v",
+                    "valeur": "Besançon (Doubs)"
+                }
+            ]
+        },
+        {
+            "code": "040",
+            "sousZones": [
+                {
+                    "code": "040$q",
+                    "valeur": "<Décès>"
+                },
+                {
+                    "code": "040$v",
+                    "valeur": "Paris"
+                }
+            ]
+        },
+        {
+            "code": "041",
+            "sousZones": [
+                {
+                    "code": "041$a",
+                    "valeur": "<français>"
+                }
+            ]
+        },
+        {
+            "code": "092",
+            "sousZones": [
+                {
+                    "code": "092$a",
+                    "valeur": "<Auteur>"
+                },
+                {
+                    "code": "092$c",
+                    "valeur": "<Éditeur>"
+                }
+            ]
+        },
+        {
+            "code": "100",
+            "sousZones": [
+                {
+                    "code": "100$a",
+                    "valeur": "Hugo"
+                },
+                {
+                    "code": "100$m",
+                    "valeur": "Victor"
+                },
+                {
+                    "code": "100$d",
+                    "valeur": "1802-1885"
+                },
+                {
+                    "code": "100$A",
+                    "valeur": "forme savante ou à valeur internationale"
+                },
+                {
+                    "code": "100$E",
+                    "valeur": "latin étendu"
+                }
+            ]
+        },
+        {
+            "code": "310",
+            "sousZones": [
+                {
+                    "code": "310$a",
+                    "valeur": "Écrivain"
+                },
+                {
+                    "code": "310$a",
+                    "valeur": "Artiste graphiste, auteur de lavis"
+                },
+                {
+                    "code": "310$a",
+                    "valeur": "Membre de l'Institut, Académie française (élu en 1841)"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Hugo"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Victor-Marie"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Hugo"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Vittor"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Hugo"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Vittorio"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Ougkṓ"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Víktōr"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                },
+                {
+                    "code": "400$T",
+                    "valeur": "système ISO de translittération complète"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "grm"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Hougkṓ"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Víktōr"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                },
+                {
+                    "code": "400$T",
+                    "valeur": "système ISO de translittération complète"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "grp"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Ουγκώ"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Βίκτωρ"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "grec"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "grm"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Οὑγκώ"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Βίκτωρ"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "grec"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "grp"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Yu guo"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                },
+                {
+                    "code": "400$T",
+                    "valeur": "système ISO de translittération complète"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "chi"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Yuguo"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                },
+                {
+                    "code": "400$T",
+                    "valeur": "système ISO de translittération complète"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "chi"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "雨果"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "chinois - hanzi, coréen - hanja, japonais - kanji"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "chi"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Gûgo"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Viktor"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                },
+                {
+                    "code": "400$T",
+                    "valeur": "système ISO de translittération complète"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "rus"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Гюго"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Виктор"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "cyrillique"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "rus"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Gûgo"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Viktor-Mari"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "latin étendu"
+                },
+                {
+                    "code": "400$T",
+                    "valeur": "système ISO de translittération complète"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "rus"
+                }
+            ]
+        },
+        {
+            "code": "400",
+            "sousZones": [
+                {
+                    "code": "400$a",
+                    "valeur": "Гюго"
+                },
+                {
+                    "code": "400$m",
+                    "valeur": "Виктор-Мари"
+                },
+                {
+                    "code": "400$E",
+                    "valeur": "cyrillique"
+                },
+                {
+                    "code": "400$L",
+                    "valeur": "rus"
+                }
+            ]
+        },
+        {
+            "code": "511",
+            "sousZones": [
+                {
+                    "code": "511$q",
+                    "valeur": "<Est membre de>"
+                },
+                {
+                    "code": "511$3",
+                    "valeur": "12051037"
+                },
+                {
+                    "code": "511$A",
+                    "valeur": "forme savante ou à valeur internationale"
+                },
+                {
+                    "code": "511$E",
+                    "valeur": "latin étendu"
+                }
+            ]
+        },
+        {
+            "code": "682",
+            "sousZones": [
+                {
+                    "code": "682$a",
+                    "valeur": "<Littératures>"
+                }
+            ]
+        },
+        {
+            "code": "682",
+            "sousZones": [
+                {
+                    "code": "682$a",
+                    "valeur": "<Art>"
+                }
+            ]
+        },
+        {
+            "code": "800",
+            "sousZones": [
+                {
+                    "code": "800$a",
+                    "valeur": "Le génie : ode à M. le vicomte de Chateaubriand / par Victor-Marie Hugo, 1820"
+                },
+                {
+                    "code": "800$a",
+                    "valeur": "Les feuilles d'automne / par Victor Hugo, 1832"
+                },
+                {
+                    "code": "800$a",
+                    "valeur": "Victor Hugo et la Grèce / textes choisis par Dimitris Pantélodimos = O Víktōr Ougkṓ kai ī Elláda / epilogī́-epiméleia keiménōn, Dīmī́trīs Pantelodī́mos, 2002"
+                }
+            ]
+        },
+        {
+            "code": "800",
+            "sousZones": [
+                {
+                    "code": "800$a",
+                    "valeur": "Commémorations nationales : 2012 / Archives de France, 2011"
+                },
+                {
+                    "code": "800$a",
+                    "valeur": "GDEL"
+                },
+                {
+                    "code": "800$a",
+                    "valeur": "Victor Hugo et le sac du Palais d'été = Yu guo yu Yuan ming yuan : visions d'artistes / Nora Wang, Ye Xin, Wang Lou, 2003"
+                }
+            ]
+        },
+        {
+            "code": "800",
+            "sousZones": [
+                {
+                    "code": "800$a",
+                    "valeur": "BN Cat. gén. : Hugo (Comte Victor-Marie)"
+                },
+                {
+                    "code": "800$a",
+                    "valeur": "BN Cat. gén. suppl."
+                },
+                {
+                    "code": "800$a",
+                    "valeur": "BN Cat. gén. 1960-1969"
+                },
+                {
+                    "code": "800$a",
+                    "valeur": "BnF Service grec, 2010-05-25 : formes grecques (translittérées et en caractères originaux)"
+                }
+            ]
+        },
+        {
+            "code": "901",
+            "sousZones": [
+                {
+                    "code": "901$n",
+                    "valeur": "FR ; BNF ; 11907966 ; 0"
+                }
+            ]
+        },
+        {
+            "code": "906",
+            "sousZones": [
+                {
+                    "code": "906$o",
+                    "valeur": "OPP"
+                },
+                {
+                    "code": "906$a",
+                    "valeur": "14860011"
+                },
+                {
+                    "code": "906$D",
+                    "valeur": "20080325"
+                }
+            ]
+        },
+        {
+            "code": "906",
+            "sousZones": [
+                {
+                    "code": "906$o",
+                    "valeur": "OPP"
+                },
+                {
+                    "code": "906$a",
+                    "valeur": "14990805"
+                },
+                {
+                    "code": "906$D",
+                    "valeur": "20080325"
+                }
+            ]
+        },
+        {
+            "code": "906",
+            "sousZones": [
+                {
+                    "code": "906$o",
+                    "valeur": "OPP"
+                },
+                {
+                    "code": "906$a",
+                    "valeur": "15468413"
+                },
+                {
+                    "code": "906$D",
+                    "valeur": "20101109"
+                }
+            ]
+        },
+        {
+            "code": "906",
+            "sousZones": [
+                {
+                    "code": "906$o",
+                    "valeur": "OPP"
+                },
+                {
+                    "code": "906$a",
+                    "valeur": "15468415"
+                },
+                {
+                    "code": "906$D",
+                    "valeur": "20101109"
+                }
+            ]
+        },
+        {
+            "code": "906",
+            "sousZones": [
+                {
+                    "code": "906$o",
+                    "valeur": "OPP"
+                },
+                {
+                    "code": "906$a",
+                    "valeur": "11578824"
+                },
+                {
+                    "code": "906$D",
+                    "valeur": "20170927"
+                }
+            ]
+        },
+        {
+            "code": "906",
+            "sousZones": [
+                {
+                    "code": "906$o",
+                    "valeur": "OPP"
+                },
+                {
+                    "code": "906$a",
+                    "valeur": "16493789"
+                },
+                {
+                    "code": "906$D",
+                    "valeur": "20191230"
+                }
+            ]
+        },
+        {
+            "code": "906",
+            "sousZones": [
+                {
+                    "code": "906$o",
+                    "valeur": "OPP"
+                },
+                {
+                    "code": "906$a",
+                    "valeur": "16829119"
+                },
+                {
+                    "code": "906$D",
+                    "valeur": "20220420"
+                }
+            ]
+        },
+        {
+            "code": "907",
+            "sousZones": [
+                {
+                    "code": "907$o",
+                    "valeur": "OPL"
+                },
+                {
+                    "code": "907$a",
+                    "valeur": "001677980"
+                },
+                {
+                    "code": "907$b",
+                    "valeur": "AMA"
+                }
+            ]
+        },
+        {
+            "code": "907",
+            "sousZones": [
+                {
+                    "code": "907$o",
+                    "valeur": "OPL"
+                },
+                {
+                    "code": "907$a",
+                    "valeur": "000904763"
+                },
+                {
+                    "code": "907$b",
+                    "valeur": "APP"
+                }
+            ]
+        },
+        {
+            "code": "907",
+            "sousZones": [
+                {
+                    "code": "907$o",
+                    "valeur": "OPD"
+                },
+                {
+                    "code": "907$a",
+                    "valeur": "100361800"
+                },
+                {
+                    "code": "907$b",
+                    "valeur": "AMA"
+                }
+            ]
+        },
+        {
+            "code": "907",
+            "sousZones": [
+                {
+                    "code": "907$o",
+                    "valeur": "OPD"
+                },
+                {
+                    "code": "907$a",
+                    "valeur": "100059290"
+                },
+                {
+                    "code": "907$b",
+                    "valeur": "APP"
+                }
+            ]
+        },
+        {
+            "code": "907",
+            "sousZones": [
+                {
+                    "code": "907$o",
+                    "valeur": "OPJ"
+                },
+                {
+                    "code": "907$a",
+                    "valeur": "100013700"
+                }
+            ]
+        },
+        {
+            "code": "907",
+            "sousZones": [
+                {
+                    "code": "907$o",
+                    "valeur": "OPB"
+                },
+                {
+                    "code": "907$a",
+                    "valeur": "100018970"
+                }
+            ]
+        },
+        {
+            "code": "909",
+            "sousZones": [
+                {
+                    "code": "909$r",
+                    "valeur": "BN"
+                },
+                {
+                    "code": "909$o",
+                    "valeur": "PNA"
+                },
+                {
+                    "code": "909$a",
+                    "valeur": "00055209"
+                }
+            ]
+        },
+        {
+            "code": "991",
+            "sousZones": [
+                {
+                    "code": "991$o",
+                    "valeur": "GEA"
+                },
+                {
+                    "code": "991$a",
+                    "valeur": "000668868"
+                },
+                {
+                    "code": "991$b",
+                    "valeur": "AMA"
+                }
+            ]
+        },
+        {
+            "code": "991",
+            "sousZones": [
+                {
+                    "code": "991$o",
+                    "valeur": "GEA"
+                },
+                {
+                    "code": "991$a",
+                    "valeur": "000360105"
+                },
+                {
+                    "code": "991$b",
+                    "valeur": "APP"
+                }
+            ]
+        },
+        {
+            "code": "991",
+            "sousZones": [
+                {
+                    "code": "991$o",
+                    "valeur": "OPL"
+                },
+                {
+                    "code": "991$a",
+                    "valeur": "000904763"
+                }
+            ]
+        }
+    ]
+}

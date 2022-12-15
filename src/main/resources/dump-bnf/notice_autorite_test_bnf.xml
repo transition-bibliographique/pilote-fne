@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/"
+	xmlns="http://catalogue.bnf.fr/namespaces/InterXMarc"
+	xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/">
+	<srw:version>1.2</srw:version>
+	<srw:echoedSearchRetrieveRequest>
+		<srw:version>1.2</srw:version>
+		<srw:query>NN any 11907966</srw:query>
+	</srw:echoedSearchRetrieveRequest>
+	<srw:numberOfRecords>1</srw:numberOfRecords>
+	<srw:records>
+		<srw:record>
+			<srw:recordSchema>InterXMarc_Complet</srw:recordSchema>
+			<srw:recordPacking>xml</srw:recordPacking>
+			<srw:recordData>
+
+				<record Numero="11907966" format="InterXMarc_Complet" type="Authority">
+					<leader>02945c0 ap2200027   45  <Pos Code="0004">02945</Pos>
+						<Pos Code="05" Sens="notice modifiée">c</Pos>
+						<Pos Code="06" Sens="notice validée par les services d&apos;autorité">0</Pos>
+						<Pos Code="08" Sens="notice d&apos;autorité">a</Pos>
+						<Pos Code="09" Sens="personne physique (PEP)">p</Pos>
+						<Pos Code="10">2</Pos>
+						<Pos Code="11">2</Pos>
+						<Pos Code="1216">00027</Pos>
+						<Pos Code="20">4</Pos>
+						<Pos Code="21">5</Pos>
+					</leader>
+					<controlfield tag="001">FRBNF119079660<Pos Code="0001">FR</Pos>
+						<Pos Code="0204">BNF</Pos>
+						<Pos Code="0512">11907966</Pos>
+						<Pos Code="13">0</Pos>
+					</controlfield>
+					<controlfield tag="008">741227220420frfrem          18020226  18850522             ac010 <Pos Code="0001">74</Pos>
+						<Pos Code="0203">12</Pos>
+						<Pos Code="0405">27</Pos>
+						<Pos Code="0607">22</Pos>
+						<Pos Code="0809">04</Pos>
+						<Pos Code="1011">20</Pos>
+						<Pos Code="1213" Sens="France">fr</Pos>
+						<Pos Code="1416" Sens="français">fre</Pos>
+						<Pos Code="17" Sens="Masculin">m</Pos>
+						<Pos Code="2831">1802</Pos>
+						<Pos Code="3233">02</Pos>
+						<Pos Code="3435">26</Pos>
+						<Pos Code="3841">1885</Pos>
+						<Pos Code="4243">05</Pos>
+						<Pos Code="4445">22</Pos>
+						<Pos Code="59" Sens="Responsabilité intellectuelle ou artistique">a</Pos>
+						<Pos Code="60" Sens="Responsabilité commerciale">c</Pos>
+						<Pos Code="61" Sens="La vedette peut être liée à une notice bibliographique pour les accès signalétiques et/ou pour l&apos;accès matière RAMEAU">0</Pos>
+						<Pos Code="62" Sens="La vedette ne peut s&apos;employer qu&apos;en tête de vedette">1</Pos>
+						<Pos Code="63" Sens="La vedette n&apos;admet pas de subdivision géographique">0</Pos>
+					</controlfield>
+					<datafield tag="031" ind1=" " ind2=" ">
+						<subfield code="a">0000000121200982</subfield>
+						<subfield code="2" Sens="ISNI chargé à partir de la base ISNI">ISNI</subfield>
+						<subfield code="d">20131217<Pos Code="0003">2013</Pos>
+							<Pos Code="0407" Sens="17 décembre">1217</Pos>
+						</subfield>
+					</datafield>
+					<datafield tag="045" ind1=" " ind2=" ">
+						<subfield code="a" Sens="Auteur">a</subfield>
+						<subfield code="c" Sens="Éditeur">e</subfield>
+					</datafield>
+					<datafield tag="100" ind1=" " ind2=" ">
+						<subfield code="w">.0..b.....</subfield>
+						<subfield code="a">Hugo</subfield>
+						<subfield code="m">Victor</subfield>
+						<subfield code="d">1802-1885</subfield>
+					</datafield>
+					<datafield tag="322" ind1="3" ind2=" ">
+						<subfield code="3">14840390</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Burgan</subfield>
+						<subfield code="m">Patrick</subfield>
+						<subfield code="d">1960-....</subfield>
+						<subfield code="t">[Mes deux filles]</subfield>
+					</datafield>
+					<datafield tag="322" ind1=" " ind2=" ">
+						<subfield code="3">17319991</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Kûi</subfield>
+						<subfield code="m">Cezar´ Antonovič</subfield>
+						<subfield code="d">1835-1918</subfield>
+						<subfield code="t">[Andzhelo]</subfield>
+					</datafield>
+					<datafield tag="322" ind1="1" ind2=" ">
+						<subfield code="3">17911033</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Bienvenu</subfield>
+						<subfield code="m">Lily</subfield>
+						<subfield code="d">1920-1998</subfield>
+						<subfield code="t" Barre="3">[3 mélodies]</subfield>
+					</datafield>
+					<datafield tag="322" ind1=" " ind2=" ">
+						<subfield code="3">16714505</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Escaich</subfield>
+						<subfield code="m">Thierry</subfield>
+						<subfield code="d">1965-....</subfield>
+						<subfield code="t">[Claude]</subfield>
+					</datafield>
+					<datafield tag="322" ind1="3" ind2=" ">
+						<subfield code="3">15068247</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Jolas</subfield>
+						<subfield code="m">Betsy</subfield>
+						<subfield code="d">1926-....</subfield>
+						<subfield code="t">[De nuit]</subfield>
+					</datafield>
+					<datafield tag="322" ind1="3" ind2=" ">
+						<subfield code="3">16966322</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Saint-Saëns</subfield>
+						<subfield code="m">Camille</subfield>
+						<subfield code="d">1835-1921</subfield>
+						<subfield code="t">[Chanson de grand-père. Op. 53, no 1]</subfield>
+					</datafield>
+					<datafield tag="322" ind1="3" ind2=" ">
+						<subfield code="3">16937728</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Saint-Saëns</subfield>
+						<subfield code="m">Camille</subfield>
+						<subfield code="d">1835-1921</subfield>
+						<subfield code="t">[Chanson d&apos;ancêtre. Op. 53, no 2]</subfield>
+					</datafield>
+					<datafield tag="322" ind1="3" ind2=" ">
+						<subfield code="3">13986483</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Lalo</subfield>
+						<subfield code="m">Édouard</subfield>
+						<subfield code="d">1823-1892</subfield>
+						<subfield code="t" Barre="3">[6 mélodies. Op. 17]</subfield>
+					</datafield>
+					<datafield tag="322" ind1="1" ind2=" ">
+						<subfield code="3">16149634</subfield>
+						<subfield code="9">144</subfield>
+						<subfield code="a">Bertin</subfield>
+						<subfield code="m">Louise</subfield>
+						<subfield code="d">1805-1877</subfield>
+						<subfield code="t" Barre="4">[La Esmeralda]</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....b.....</subfield>
+						<subfield code="a">Hugo</subfield>
+						<subfield code="m">Victor-Marie</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....b.....</subfield>
+						<subfield code="a">Hugo</subfield>
+						<subfield code="m">Vittor</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....b.....</subfield>
+						<subfield code="a">Hugo</subfield>
+						<subfield code="m">Vittorio</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....bagrm.</subfield>
+						<subfield code="a">Ougkṓ</subfield>
+						<subfield code="m">Víktōr</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....bagrp.</subfield>
+						<subfield code="a">Hougkṓ</subfield>
+						<subfield code="m">Víktōr</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....g.grm.</subfield>
+						<subfield code="a">Ουγκώ</subfield>
+						<subfield code="m">Βίκτωρ</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....g.grp.</subfield>
+						<subfield code="a">Οὑγκώ</subfield>
+						<subfield code="m">Βίκτωρ</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....bachi.</subfield>
+						<subfield code="a">Yu guo</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....bachi.</subfield>
+						<subfield code="a">Yuguo</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....1.chi.</subfield>
+						<subfield code="a">雨果</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....barus.</subfield>
+						<subfield code="a">Gûgo</subfield>
+						<subfield code="m">Viktor</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....c.rus.</subfield>
+						<subfield code="a">Гюго</subfield>
+						<subfield code="m">Виктор</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....barus.</subfield>
+						<subfield code="a">Gûgo</subfield>
+						<subfield code="m">Viktor-Mari</subfield>
+					</datafield>
+					<datafield tag="400" ind1=" " ind2=" ">
+						<subfield code="w">....c.rus.</subfield>
+						<subfield code="a">Гюго</subfield>
+						<subfield code="m">Виктор-Мари</subfield>
+					</datafield>
+					<datafield tag="504" ind1="1" ind2=" ">
+						<subfield code="3">12051037</subfield>
+						<subfield code="w">.0..b.....</subfield>
+						<subfield code="a">Hugo</subfield>
+						<subfield code="e">famille</subfield>
+					</datafield>
+					<datafield tag="600" ind1=" " ind2=" ">
+						<subfield code="a">Écrivain</subfield>
+						<subfield code="a">Artiste graphiste, auteur de lavis</subfield>
+						<subfield code="a">Membre de l&apos;Institut, Académie française (élu en 1841)</subfield>
+					</datafield>
+					<datafield tag="603" ind1=" " ind2=" ">
+						<subfield code="a">Besançon (Doubs)</subfield>
+						<subfield code="b">Paris</subfield>
+					</datafield>
+					<datafield tag="610" ind1=" " ind2=" ">
+						<subfield code="a">Le génie : ode à M. le vicomte de Chateaubriand / par Victor-Marie Hugo, 1820</subfield>
+						<subfield code="a">Les feuilles d&apos;automne / par Victor Hugo, 1832</subfield>
+						<subfield code="a">Victor Hugo et la Grèce / textes choisis par Dimitris Pantélodimos = O Víktōr Ougkṓ kai ī Elláda / epilogī́-epiméleia keiménōn, Dīmī́trīs Pantelodī́mos, 2002</subfield>
+					</datafield>
+					<datafield tag="610" ind1=" " ind2=" ">
+						<subfield code="a">Commémorations nationales : 2012 / Archives de France, 2011</subfield>
+						<subfield code="a">GDEL</subfield>
+						<subfield code="a">Victor Hugo et le sac du Palais d&apos;été = Yu guo yu Yuan ming yuan : visions d&apos;artistes / Nora Wang, Ye Xin, Wang Lou, 2003</subfield>
+					</datafield>
+					<datafield tag="610" ind1=" " ind2=" ">
+						<subfield code="a">BN Cat. gén. : Hugo (Comte Victor-Marie)</subfield>
+						<subfield code="a">BN Cat. gén. suppl.</subfield>
+						<subfield code="a">BN Cat. gén. 1960-1969</subfield>
+						<subfield code="a">BnF Service grec, 2010-05-25 : formes grecques (translittérées et en caractères originaux)</subfield>
+					</datafield>
+					<datafield tag="624" ind1=" " ind2=" ">
+						<subfield code="a">800<Pos Code="0002" Sens="Littératures">800</Pos>
+						</subfield>
+					</datafield>
+					<datafield tag="624" ind1=" " ind2=" ">
+						<subfield code="a">700<Pos Code="0002" Sens="Art">700</Pos>
+						</subfield>
+					</datafield>
+					<datafield tag="907" ind1=" " ind2=" ">
+						<subfield code="o">GEA</subfield>
+						<subfield code="a">000668868</subfield>
+						<subfield code="b">AMA</subfield>
+					</datafield>
+					<datafield tag="907" ind1=" " ind2=" ">
+						<subfield code="o">GEA</subfield>
+						<subfield code="a">000360105</subfield>
+						<subfield code="b">APP</subfield>
+					</datafield>
+					<datafield tag="917" ind1=" " ind2=" ">
+						<subfield code="o">OPL</subfield>
+						<subfield code="a">001677980</subfield>
+						<subfield code="b">AMA</subfield>
+					</datafield>
+					<datafield tag="917" ind1=" " ind2=" ">
+						<subfield code="o">OPL</subfield>
+						<subfield code="a">000904763</subfield>
+						<subfield code="b">APP</subfield>
+					</datafield>
+					<datafield tag="917" ind1=" " ind2=" ">
+						<subfield code="o">OPD</subfield>
+						<subfield code="a">100361800</subfield>
+						<subfield code="b">AMA</subfield>
+					</datafield>
+					<datafield tag="917" ind1=" " ind2=" ">
+						<subfield code="o">OPD</subfield>
+						<subfield code="a">100059290</subfield>
+						<subfield code="b">APP</subfield>
+					</datafield>
+					<datafield tag="917" ind1=" " ind2=" ">
+						<subfield code="o">OPJ</subfield>
+						<subfield code="a">100013700</subfield>
+					</datafield>
+					<datafield tag="917" ind1=" " ind2=" ">
+						<subfield code="o">OPB</subfield>
+						<subfield code="a">100018970</subfield>
+					</datafield>
+					<datafield tag="919" ind1=" " ind2=" ">
+						<subfield code="p">BN</subfield>
+						<subfield code="o">PNA</subfield>
+						<subfield code="a">00055209</subfield>
+					</datafield>
+					<datafield tag="927" ind1=" " ind2=" ">
+						<subfield code="o">OPL</subfield>
+						<subfield code="a">000904763</subfield>
+					</datafield>
+					<datafield tag="996" ind1=" " ind2=" ">
+						<subfield code="o">OPP</subfield>
+						<subfield code="a">14860011</subfield>
+						<subfield code="d">20080325</subfield>
+					</datafield>
+					<datafield tag="996" ind1=" " ind2=" ">
+						<subfield code="o">OPP</subfield>
+						<subfield code="a">14990805</subfield>
+						<subfield code="d">20080325</subfield>
+					</datafield>
+					<datafield tag="996" ind1=" " ind2=" ">
+						<subfield code="o">OPP</subfield>
+						<subfield code="a">15468413</subfield>
+						<subfield code="d">20101109</subfield>
+					</datafield>
+					<datafield tag="996" ind1=" " ind2=" ">
+						<subfield code="o">OPP</subfield>
+						<subfield code="a">15468415</subfield>
+						<subfield code="d">20101109</subfield>
+					</datafield>
+					<datafield tag="996" ind1=" " ind2=" ">
+						<subfield code="o">OPP</subfield>
+						<subfield code="a">11578824</subfield>
+						<subfield code="d">20170927</subfield>
+					</datafield>
+					<datafield tag="996" ind1=" " ind2=" ">
+						<subfield code="o">OPP</subfield>
+						<subfield code="a">16493789</subfield>
+						<subfield code="d">20191230</subfield>
+					</datafield>
+					<datafield tag="996" ind1=" " ind2=" ">
+						<subfield code="o">OPP</subfield>
+						<subfield code="a">16829119</subfield>
+						<subfield code="d">20220420</subfield>
+					</datafield>
+					<Alter Ori="12051037">
+						<datafield tag="400" ind1=" " ind2="5">
+							<subfield code="w">....b     </subfield>
+							<subfield code="a">Famille Hugo</subfield>
+						</datafield>
+					</Alter>
+					<Alter Ori="15068247">
+						<datafield tag="444" ind1="1" ind2=" ">
+							<subfield code="w">....b.eng.</subfield>
+							<subfield code="a">By night</subfield>
+						</datafield>
+					</Alter>
+					<Alter Ori="17319991">
+						<datafield tag="444" ind1="1" ind2=" ">
+							<subfield code="w">....b.fre.</subfield>
+							<subfield code="a">Angelo</subfield>
+						</datafield>
+					</Alter>
+					<Attr Nom="IDPerenne">ark:/12148/cb11907966z</Attr>
+					<Attr Nom="NumSource">GEA 000668868</Attr>
+					<Attr Nom="Source" Sens="BnF catalogue général (depuis 1999)">A</Attr>
+					<Attr Nom="NbAutoritesTICLiees">59</Attr>
+					<Attr Nom="NumAutoriteLiee">173199911791103316714505150682471696632216937728139864831614963412051037</Attr>
+					<Attr Nom="DateCreation">22/06/1985</Attr>
+					<Attr Nom="ResponsableCreation">MIGV1</Attr>
+					<Attr Nom="StructCreation">1</Attr>
+					<Attr Nom="DateDerniereValidation">20/04/2022</Attr>
+					<Attr Nom="ResponsableDerniereValidation">PRADEL DE LAMAZE PHILIPPE</Attr>
+					<Attr Nom="StructPremiereValidation">1</Attr>
+					<Attr Nom="DatePremiereValidation">22/06/1985</Attr>
+					<Attr Nom="ResponsablePremiereValidation">MIGV1</Attr>
+					<Attr Nom="StructDerniereValidation">113</Attr>
+					<Attr Nom="NumSource" Rep="1">GEA 000360105</Attr>
+					<Attr Nom="NumSource" Rep="2">OPL 001677980</Attr>
+					<Attr Nom="NumSource" Rep="3">OPL 000904763</Attr>
+					<Attr Nom="NumSource" Rep="4">OPD 100361800</Attr>
+					<Attr Nom="NumSource" Rep="5">OPD 100059290</Attr>
+					<Attr Nom="NumSource" Rep="6">OPJ 100013700</Attr>
+					<Attr Nom="NumSource" Rep="7">OPB 100018970</Attr>
+					<Attr Nom="NumSource" Rep="8">PNA 00055209</Attr>
+					<Attr Nom="NumSource" Rep="9">OPP 14860011</Attr>
+					<Attr Nom="NumSource" Rep="10">OPP 14990805</Attr>
+					<Attr Nom="NumSource" Rep="11">OPP 15468413</Attr>
+					<Attr Nom="NumSource" Rep="12">OPP 15468415</Attr>
+					<Attr Nom="NumSource" Rep="13">OPP 11578824</Attr>
+					<Attr Nom="NumSource" Rep="14">OPP 16493789</Attr>
+					<Attr Nom="NumSource" Rep="15">OPP 16829119</Attr>
+				</record>
+			</srw:recordData>
+			<srw:recordIdentifier>ark:/12148/cb11907966z</srw:recordIdentifier>
+			<srw:recordPosition>1</srw:recordPosition>
+		</srw:record>
+	</srw:records>
+</srw:searchRetrieveResponse>

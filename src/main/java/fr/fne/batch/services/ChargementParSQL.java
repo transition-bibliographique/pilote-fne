@@ -120,24 +120,14 @@ public class ChargementParSQL {
             }
             di.commit();
 
+            //Ensuite, il faut indexer dans Elastic Search et dans WDQS (SPARQL) :
+            //indexationES.go();
+            //indexationSPARQL.go();
+
             stopWatch.stop();
 
             logger.info("Created "+recordNb+" items in " + stopWatch.getTime(TimeUnit.SECONDS)+" s.");
             logger.info("Speed is "+(int) (recordNb / (double) stopWatch.getTime(TimeUnit.SECONDS))+" items/second.");
-
-            /*
-             * Ensuite, il faut indexer dans Elastic Search :
-             * Source : https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/raiser.py
-             * Depuis le conteneur Wikibase :
-             * php extensions/CirrusSearch/maintenance/ForceSearchIndex.php --skipLinks –indexOnSkip
-             * php extensions/CirrusSearch/maintenance/ForceSearchIndex.php –skipParse
-             * php maintenance/runJobs.php
-             *
-             * Il faut aussi indexer dans WDQS (SPARQL) :
-             * Depuis le conteneur WDQS :
-             * /wdqs/runUpdate.sh -h http://${WDQS_HOST}:${WDQS_PORT} -- --wikibaseUrl ${WIKIBASE_SCHEME}://${WIKIBASE_HOST} --conceptUri ${WIKIBASE_SCHEME}://${WIKIBASE_HOST} --entityNamespaces ${WDQS_ENTITY_NAMESPACES} --init --start 20210315120000
-            */
-
         } catch (Exception e) {
             logger.error("ChargementParSQL pb : " + e.getMessage());
             e.printStackTrace();

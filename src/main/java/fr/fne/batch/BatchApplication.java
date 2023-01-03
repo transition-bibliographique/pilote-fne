@@ -1,6 +1,8 @@
 package fr.fne.batch;
 
-import fr.fne.batch.services.*;
+import fr.fne.batch.services.ChargementParAPI;
+import fr.fne.batch.services.ChargementParSQL;
+import fr.fne.batch.services.CreationFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +20,6 @@ public class BatchApplication implements CommandLineRunner {
 
 	@Autowired
 	private ChargementParSQL chargementParSQL;
-
-	@Autowired
-	private IndexationES indexationES;
-
-	@Autowired
-	private IndexationSPARQL indexationSPARQL;
 
 	private final Logger logger = LoggerFactory.getLogger(BatchApplication.class);
 
@@ -49,15 +45,9 @@ public class BatchApplication implements CommandLineRunner {
 			else if (action.equalsIgnoreCase("SQL")) {
 				chargementParSQL.go();
 			}
-			else if (action.equalsIgnoreCase("IndexationES")) {
-				indexationES.go();
-			}
-			else if (action.equalsIgnoreCase("IndexationSPARQL")) {
-				indexationSPARQL.go();
-			}
 		} else {
 			logger.info("BatchApplication : pas de paramètre");
-			logger.info("Choisir : Format | SQL | API | IndexationES | IndexationSPARQL");
+			logger.info("Choisir : Format | SQL | API");
 		}							
 	}
 

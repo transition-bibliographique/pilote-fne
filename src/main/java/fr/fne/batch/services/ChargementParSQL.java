@@ -120,9 +120,8 @@ public class ChargementParSQL {
             }
             di.commit();
 
-            //Ensuite, il faut indexer dans Elastic Search et dans WDQS (SPARQL) :
-            //indexationES.go();
-            //indexationSPARQL.go();
+            // Ensuite, il faut indexer dans Elastic Search et dans WDQS (SPARQL),
+            // avec les scripts : (resources/scripts) indexationES et indexationSPARQL (.ps1 ou .sh)
 
             stopWatch.stop();
 

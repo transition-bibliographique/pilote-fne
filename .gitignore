@@ -15,3 +15,4 @@ classes
 *.log
 .springBeans
 .factorypath
+/MyWiki.ttl.gz

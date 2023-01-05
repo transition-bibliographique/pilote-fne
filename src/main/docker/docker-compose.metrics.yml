@@ -2,6 +2,7 @@ version: '3.4'
 
 # Pour démarrer ces containeurs, aller dans le répertoire du docker-compose wikibase et lancer :
 # docker-compose -f docker-compose.yml -f ../pilote-fne/src/main/docker/docker-compose.metrics.yml up -d
+# par contre, les chemins sont relatifs aux premiers docker-compose lancé
 
 services:
 
@@ -22,7 +23,7 @@ services:
     container_name: prometheus-container
     restart: unless-stopped
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - "C:/Users/charot/git/pilote-fne/src/main/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
     ports:
       - "9090:9090"
     networks:
@@ -51,6 +52,8 @@ services:
     image: grafana/grafana-oss:9.1.4
     container_name: grafana-container
     restart: unless-stopped
+    volumes:
+      - "C:/Users/charot/git/pilote-fne/src/main/docker/grafana/datasources:/etc/grafana/provisioning/datasources"
     depends_on:
       - prometheus
     ports:

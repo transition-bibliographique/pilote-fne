@@ -1,6 +1,14 @@
 package fr.fne.batch.util;
 
-import org.apache.commons.io.FileUtils;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -16,12 +24,6 @@ import org.wikidata.wdtk.datamodel.interfaces.ItemIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyIdValue;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 @Service
 public class Format {
     private final Logger logger = LoggerFactory.getLogger(Format.class);
@@ -35,9 +37,27 @@ public class Format {
      - création des types d'entités : Personne Q1 et IPP Q2
      */
     public void createWithFile(String csrftoken) throws Exception {
-        File file = new ClassPathResource("ProprietesWB.txt").getFile();
-        List<String> lines = FileUtils.readLines(file, "UTF-8");
-        Iterator line = lines.iterator();
+        BufferedReader reader = null;
+                        
+        //List<String> lines = FileUtils.readLines(file, "UTF-8");
+        List<String> lines = new ArrayList<String>();
+		try {
+			InputStream inputStream = new ClassPathResource("ProprietesWB.txt").getInputStream();
+			
+			reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				lines.add(line);
+
+			}
+		} finally {
+			if (reader != null)
+				reader.close();
+		}
+        
+        
+        Iterator<String> line = lines.iterator();
 
         while (line.hasNext()){
 

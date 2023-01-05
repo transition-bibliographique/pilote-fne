@@ -1,0 +1,43 @@
+version: '3.4'
+
+services:
+
+#  pilote-fne:
+#    build:
+#      context: .
+#      dockerfile: DockerFile
+#    container_name: pilote-fne-container
+#    ports:
+#      - "8080:8080"
+
+  prometheus:
+    image: prom/prometheus:v2.38.0
+    container_name: prometheus-container
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter
+    container_name: mysqld-exporter-container
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "root:my-secret-pw@(host.docker.internal:3306)/my_wiki"
+    ports:
+      - "9104:9104"
+
+  grafana:
+    image: grafana/grafana-oss:9.1.4
+    container_name: grafana-container
+    restart: unless-stopped
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_DOMAIN=localhost

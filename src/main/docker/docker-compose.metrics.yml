@@ -1,7 +1,7 @@
 version: '3.4'
 
 # Pour démarrer ces containeurs, aller dans le répertoire du docker-compose wikibase et lancer :
-# docker-compose -f docker-compose.yml -f ../pilote-fne/src/main/docker/docker-compose.yml up -d
+# docker-compose -f docker-compose.yml -f ../pilote-fne/src/main/docker/docker-compose.metrics.yml up -d
 
 services:
 

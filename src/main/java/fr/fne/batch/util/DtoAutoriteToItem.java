@@ -14,6 +14,7 @@ import org.wikidata.wdtk.datamodel.helpers.ItemDocumentBuilder;
 import org.wikidata.wdtk.datamodel.helpers.ReferenceBuilder;
 import org.wikidata.wdtk.datamodel.helpers.StatementBuilder;
 import org.wikidata.wdtk.datamodel.implementation.PropertyIdValueImpl;
+import org.wikidata.wdtk.datamodel.implementation.ValueSnakImpl;
 import org.wikidata.wdtk.datamodel.interfaces.*;
 
 import java.util.Map;
@@ -209,6 +210,7 @@ public class DtoAutoriteToItem {
                     .forSubjectAndProperty(ItemIdValue.NULL, new PropertyIdValueImpl(props.get(propriete), iriWikiBase))
                     .withValue(Datamodel.makeStringValue(valeur.strip()))  //Strip car en 103 par exemple, il y a des valeurs commençant ou terminant par des espaces..
                     .withReference(reference)
+                    .withQualifier(new ValueSnakImpl(new PropertyIdValueImpl(props.get("Type d'entité"), iriWikiBase),Datamodel.makeItemIdValue("Q1",iriWikiBase)))
                     .build();
             itemDocumentBuilder = itemDocumentBuilder.withStatement(statement);
         }
@@ -284,6 +286,7 @@ public class DtoAutoriteToItem {
                                         TimeValue.CM_GREGORIAN_PRO)
                         )
                         .withReference(reference)
+                        .withQualifier(new ValueSnakImpl(new PropertyIdValueImpl(props.get("Type d'entité"), iriWikiBase),Datamodel.makeItemIdValue("Q1",iriWikiBase)))
                         .build();
                 itemDocumentBuilder = itemDocumentBuilder.withStatement(statement);
             }

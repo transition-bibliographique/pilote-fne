@@ -15,9 +15,6 @@ jobs:
   build-test-pubtodockerhub:
     name: Build Pilote FNE
     runs-on: ubuntu-latest
- #   defaults:
-  #    run:
-   #     working-directory: /home/runner/work/pilote-fne/pilote-fne/
 
     steps:
       - name: "Build: checkout source code"
@@ -25,8 +22,7 @@ jobs:
 
       - name: "Build: build docker image"
         run: |
-          ls
-      #         docker build . -t localimage:latest
+          docker build . -t localimage:latest
 
       - name: "Push: prepare version from git tags/branchs"
         id: docker_tag_meta

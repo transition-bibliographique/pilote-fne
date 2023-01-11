@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: /pilote-fne
+        working-directory: ./pilote-fne/pilote-fne
 
     steps:
       - name: "Build: checkout source code"

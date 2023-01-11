@@ -6,6 +6,8 @@ services:
   pilote-fne:
     image: transitionbibliographique/pilote-fne:main-pilote-fne
     restart: unless-stopped
+    volumes:
+      - C:/dump:/dump
     ports:
       - "8080:8080"
 

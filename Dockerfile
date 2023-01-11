@@ -29,4 +29,4 @@ RUN mvn --batch-mode \
 # Image pour le batch pilote-fne
 FROM openjdk:17 as pilote-fne
 COPY --from=build-image /build/target/*.jar /app/pilote-fne.jar
-# CMD ["java", "-jar", "/app/pilote-fne.jar"]
+CMD ["java", "-jar", "/app/pilote-fne.jar", "SQL"]

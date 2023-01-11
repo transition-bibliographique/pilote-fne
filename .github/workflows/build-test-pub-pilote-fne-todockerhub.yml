@@ -16,9 +16,6 @@ jobs:
   build-test-pubtodockerhub:
     name: Build Pilote FNE
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: pilote-fne
 
     steps:
       - name: "Build: checkout source code"

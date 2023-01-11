@@ -2,13 +2,12 @@ version: '3.4'
 
 services:
 
-#  pilote-fne:
-#    build:
-#      context: .
-#      dockerfile: DockerFile
-#    container_name: pilote-fne-container
-#    ports:
-#      - "8080:8080"
+
+  pilote-fne:
+    image: transitionbibliographique/pilote-fne:main-pilote-fne
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
 
   prometheus:
     image: prom/prometheus:v2.38.0

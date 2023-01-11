@@ -25,7 +25,7 @@ jobs:
 
       - name: "Build: build docker image"
         run: |
-          pwd
+          ls
       #         docker build . -t localimage:latest
 
       - name: "Push: prepare version from git tags/branchs"

@@ -2,7 +2,7 @@
 # Image pour la compilation du batch pilote-fne
 
 # Test en local :
-# docker build -f DockerFile -t pilotefne .
+# docker build -f Dockerfile -t pilotefne .
 FROM maven:3.8.1-openjdk-17-slim as build-image
 WORKDIR /build/
 # Installation et configuration de la locale FR
@@ -15,7 +15,7 @@ ENV LC_ALL fr_FR.UTF-8
 # On lance la compilation
 # si on a un .m2 local on peut décommenter la ligne suivante pour
 # éviter à maven de retélécharger toutes les dépendances
-COPY ./.m2/    /root/.m2/
+# COPY ./.m2/    /root/.m2/
 
 COPY ./ /build/
 RUN mvn --batch-mode \

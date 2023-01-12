@@ -5,6 +5,7 @@ services:
 
   pilote-fne:
     image: transitionbibliographique/pilote-fne:main-pilote-fne
+    container_name: pilote-fne-container
     restart: unless-stopped
     volumes:
       - C:/dump:/dump

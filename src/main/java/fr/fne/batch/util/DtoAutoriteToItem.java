@@ -205,7 +205,7 @@ public class DtoAutoriteToItem {
         }
 
         //Si la propriété ZoneXXX est connue :
-        if (props.get(propriete)!=null) {
+        if (props.get(propriete)!=null && valeur!=null) {
             Statement statement = StatementBuilder
                     .forSubjectAndProperty(ItemIdValue.NULL, new PropertyIdValueImpl(props.get(propriete), iriWikiBase))
                     .withValue(Datamodel.makeStringValue(valeur.strip()))  //Strip car en 103 par exemple, il y a des valeurs commençant ou terminant par des espaces..

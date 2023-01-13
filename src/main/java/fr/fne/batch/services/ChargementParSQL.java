@@ -94,6 +94,8 @@ public class ChargementParSQL {
 
             int lanceCommit = 0;
             for (int i=0;i<fichiers.length;i++) {
+                logger.info("Fichier traité : "+fichiers[i].getName());
+
                 JacksonXmlModule xmlModule = new JacksonXmlModule();
                 xmlModule.setDefaultUseWrapper(false);
                 ObjectMapper objectMapper = new XmlMapper(xmlModule);
@@ -121,7 +123,7 @@ public class ChargementParSQL {
             di.commit();
 
             // Ensuite, il faut indexer dans Elastic Search et dans WDQS (SPARQL),
-            // avec les scripts : (resources/scripts) indexationES et indexationSPARQL (.ps1 ou .sh)
+            // avec les scripts : (scriptsIndexation) indexationES et indexationSPARQL (.ps1 ou .sh) du dépôt pilote-fne-docker
 
             stopWatch.stop();
 

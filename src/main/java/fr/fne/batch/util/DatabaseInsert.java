@@ -236,9 +236,9 @@ public class DatabaseInsert {
         rs.close();
 
         //ACT : contient label, description  et alias
-        //Ajout de ces 2 lignes car pas d'Item/Q avec description et/ou alias créé au départ
-        connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('description')");
-        connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('alias')");
+        //Ajout de ces 2 lignes si pas d'Item/Q avec description et/ou alias créé au départ
+        //connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('description')");
+        //connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('alias')");
 
         rs = stmt.executeQuery("SELECT wby_name, wby_id FROM wbt_type");
         while (rs.next()){

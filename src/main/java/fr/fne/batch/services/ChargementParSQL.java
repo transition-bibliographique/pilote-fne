@@ -105,20 +105,13 @@ public class ChargementParSQL {
                 for(Record record : collection.getRecordList()){
                     recordNb++;
 
-                    /*
-                    lanceCommit++;
-
-                    if (lanceCommit==1000){
-                        di.commit();
-                        lanceCommit=0;
-                    }*/
-
                     ItemDocument itemDocument = dtoAutoriteToItem.unmarshallerNotice(record, props);
 
                     if (itemDocument != null) {
                         di.createItem(JsonSerializer.getJsonString(itemDocument));
                     }
                 }
+                di.commit();
             }
             di.commit();
 

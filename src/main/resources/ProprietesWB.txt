@@ -41,6 +41,7 @@ Zone230|string
 Zone240|string
 Zone300|string
 Zone305|string
+Zone310|string
 Zone320|string
 Zone330|string
 Zone340|string

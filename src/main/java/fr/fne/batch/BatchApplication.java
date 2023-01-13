@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
@@ -36,7 +37,26 @@ public class BatchApplication implements CommandLineRunner {
 	}
 
 	public void run(String... args) throws Exception {		
-		
+
+		//Voir la mémoire allouée :
+		Runtime runtime = Runtime.getRuntime();
+
+		final NumberFormat format = NumberFormat.getInstance();
+
+		final long maxMemory = runtime.maxMemory();
+		final long allocatedMemory = runtime.totalMemory();
+		final long freeMemory = runtime.freeMemory();
+		final long mb = 1024 * 1024;
+		final String mega = " MB";
+
+		logger.info("========================== Memory Info ==========================");
+		logger.info("Free memory: " + format.format(freeMemory / mb) + mega);
+		logger.info("Allocated memory: " + format.format(allocatedMemory / mb) + mega);
+		logger.info("Max memory: " + format.format(maxMemory / mb) + mega);
+		logger.info("Total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / mb) + mega);
+		logger.info("=================================================================\n");
+
+
 		// Pour éviter d'attendre indéfiniment si une url ne répond pas
 		System.setProperty("sun.net.client.defaultConnectTimeout", "20000");
 		System.setProperty("sun.net.client.defaultReadTimeout", "20000");				

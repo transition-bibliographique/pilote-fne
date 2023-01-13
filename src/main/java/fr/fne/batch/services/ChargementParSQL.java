@@ -96,22 +96,28 @@ public class ChargementParSQL {
             for (int i=0;i<fichiers.length;i++) {
                 logger.info("Fichier traité : "+fichiers[i].getName());
 
-                JacksonXmlModule xmlModule = new JacksonXmlModule();
-                xmlModule.setDefaultUseWrapper(false);
-                ObjectMapper objectMapper = new XmlMapper(xmlModule);
-                objectMapper.registerModule(new JaxbAnnotationModule());
-                Collection collection = objectMapper.readValue(new FileInputStream(fichiers[i]), Collection.class);
+                try {
+                    JacksonXmlModule xmlModule = new JacksonXmlModule();
+                    xmlModule.setDefaultUseWrapper(false);
+                    ObjectMapper objectMapper = new XmlMapper(xmlModule);
+                    objectMapper.registerModule(new JaxbAnnotationModule());
+                    Collection collection = objectMapper.readValue(new FileInputStream(fichiers[i]), Collection.class);
 
-                for(Record record : collection.getRecordList()){
-                    recordNb++;
+                    for (Record record : collection.getRecordList()) {
+                        recordNb++;
 
-                    ItemDocument itemDocument = dtoAutoriteToItem.unmarshallerNotice(record, props);
+                        ItemDocument itemDocument = dtoAutoriteToItem.unmarshallerNotice(record, props);
 
-                    if (itemDocument != null) {
-                        di.createItem(JsonSerializer.getJsonString(itemDocument));
+                        if (itemDocument != null) {
+                            di.createItem(JsonSerializer.getJsonString(itemDocument));
+                        }
                     }
+                    di.commit();
                 }
-                di.commit();
+                catch (Exception e){
+                    logger.error("Erreur : "+e.getMessage());
+                }
+
             }
             di.commit();
 

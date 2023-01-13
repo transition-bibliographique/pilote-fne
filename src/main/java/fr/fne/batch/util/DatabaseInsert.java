@@ -305,14 +305,14 @@ public class DatabaseInsert {
         }
 
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
-        if (label.length()>254)
-            label = label.substring(0,255);
+        if (label.length() > 254)
+            label = label.substring(0,254);
 
         String description = null;
         if (json.optJSONObject("descriptions")!=null){
             description = json.optJSONObject("descriptions").optJSONObject(LANG).optString("value");
-            if (description!=null && description.length()>254)
-                description = description.substring(0,255);
+            if (description!=null && description.length() > 254)
+                description = description.substring(0,254);
         }
 
         JSONArray aliases = null;
@@ -334,7 +334,7 @@ public class DatabaseInsert {
                 for (int i = 0; i < aliases.length(); i++) {
                     String alias = aliases.getJSONObject(i).optString("value");
                     if (alias.length() > 254)
-                        alias = alias.substring(0, 255);
+                        alias = alias.substring(0, 254);
 
                     insert_wbt_table(alias, "alias");
                 }

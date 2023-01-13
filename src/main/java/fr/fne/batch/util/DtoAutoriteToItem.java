@@ -268,7 +268,7 @@ public class DtoAutoriteToItem {
             }
         }
         catch (Exception e){
-            logger.warn("addStmtTime, attention, pour la date : "+valeur+" : "+e.getMessage());
+            //logger.warn("addStmtTime, attention, pour la date : "+valeur+" : "+e.getMessage());
         }
 
         //Si la propriété ZoneXXX est connue :

@@ -39,6 +39,7 @@ Zone210|string
 Zone215|string
 Zone230|string
 Zone240|string
+Zone250|string
 Zone300|string
 Zone305|string
 Zone310|string
@@ -95,4 +96,5 @@ Zone932|string
 Zone940|string
 Zone941|string
 Zone942|string
+Zone950|string
 Zone951|string

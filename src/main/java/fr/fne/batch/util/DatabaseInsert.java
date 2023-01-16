@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -304,9 +305,13 @@ public class DatabaseInsert {
             }
         }
 
+        //Cas de caractères UTF-8 qui, passés en VARBINARY, font plus de 255 :
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
-        if (label.length() > 254)
-            label = label.substring(0,254);
+        byte[] byteArrray = label.getBytes();
+
+        if (byteArrray.length > 254) {
+            label = new String(Arrays.copyOfRange(byteArrray, 0, 254));
+        }
 
         String description = null;
         if (json.optJSONObject("descriptions")!=null){

@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.batch.core.BatchStatus;
 
 @SpringBootApplication
-public class BatchApplication implements CommandLineRunner {
+public class BatchApplication {
 	@Autowired
 	private CreationFormat creationFormat;
 
@@ -21,10 +23,27 @@ public class BatchApplication implements CommandLineRunner {
 	@Autowired
 	private ChargementParSQL chargementParSQL;
 
-	private final Logger logger = LoggerFactory.getLogger(BatchApplication.class);
+	private static final Logger logger = LoggerFactory.getLogger(BatchApplication.class);
 
 	public static void main(String[] args) {
-		SpringApplication.run(BatchApplication.class, args);
+		ConfigurableApplicationContext context = SpringApplication.run(BatchApplication.class, args);
+
+		int exitValue = SpringApplication.exit(context);
+
+		if (exitValue == BatchStatus.COMPLETED.ordinal()) {
+			exitValue = 0;
+		} else if (exitValue == BatchStatus.FAILED.ordinal()) {
+			exitValue = 1;
+		} else if ((exitValue == BatchStatus.STOPPING.ordinal()) || (exitValue == BatchStatus.STARTING.ordinal())
+				|| (exitValue == BatchStatus.STARTED.ordinal())) {
+			exitValue = 2;
+		}
+
+		if (logger.isInfoEnabled()) {
+			logger.info(String.format("Exit code: %s", exitValue) );
+		}
+
+		System.exit(exitValue);
 	}
 
 	public void run(String... args) throws Exception {		

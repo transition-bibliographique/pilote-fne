@@ -1,14 +1,5 @@
 package fr.fne.batch.util;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,6 +14,11 @@ import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 import org.wikidata.wdtk.datamodel.interfaces.ItemIdValue;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyDocument;
 import org.wikidata.wdtk.datamodel.interfaces.PropertyIdValue;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 
 @Service
 public class Format {
@@ -161,8 +157,11 @@ public class Format {
      */
     public String createType(String csrftoken, String label) throws Exception {
 
+        //Ajout d'une description et d'un alias, pour que ces "types" soient présents en BDD (voir DatabaseInsert.java ligne 238
         ItemDocument itemDocument = ItemDocumentBuilder.forItemId(ItemIdValue.NULL)
                 .withLabel(label, "fr")
+                .withDescription("Entité : "+label, "fr")
+                .withAlias(label, "fr")
                 .build();
 
         Map<String, String> params = new LinkedHashMap<>();

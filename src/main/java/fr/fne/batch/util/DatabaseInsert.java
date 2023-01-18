@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -236,9 +237,9 @@ public class DatabaseInsert {
         rs.close();
 
         //ACT : contient label, description  et alias
-        //Ajout de ces 2 lignes car pas d'Item/Q avec description et/ou alias créé au départ
-        connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('description')");
-        connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('alias')");
+        //Ajout de ces 2 lignes si pas d'Item/Q avec description et/ou alias créé au départ
+        //connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('description')");
+        //connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('alias')");
 
         rs = stmt.executeQuery("SELECT wby_name, wby_id FROM wbt_type");
         while (rs.next()){
@@ -304,15 +305,19 @@ public class DatabaseInsert {
             }
         }
 
+        //Cas de caractères UTF-8 qui, passés en VARBINARY, font plus de 255 :
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
-        if (label.length()>254)
-            label = label.substring(0,255);
+        byte[] byteArrray = label.getBytes();
+
+        if (byteArrray.length > 254) {
+            label = new String(Arrays.copyOfRange(byteArrray, 0, 254));
+        }
 
         String description = null;
         if (json.optJSONObject("descriptions")!=null){
             description = json.optJSONObject("descriptions").optJSONObject(LANG).optString("value");
-            if (description!=null && description.length()>254)
-                description = description.substring(0,255);
+            if (description!=null && description.length() > 254)
+                description = description.substring(0,254);
         }
 
         JSONArray aliases = null;
@@ -334,7 +339,7 @@ public class DatabaseInsert {
                 for (int i = 0; i < aliases.length(); i++) {
                     String alias = aliases.getJSONObject(i).optString("value");
                     if (alias.length() > 254)
-                        alias = alias.substring(0, 255);
+                        alias = alias.substring(0, 254);
 
                     insert_wbt_table(alias, "alias");
                 }

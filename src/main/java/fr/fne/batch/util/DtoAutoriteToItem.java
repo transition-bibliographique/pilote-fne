@@ -180,43 +180,44 @@ public class DtoAutoriteToItem {
         //    "P1": ["<copie intégrale de la zone XXX>"]
         //}]
 
-        Reference reference;
+        if (valeur != null) {
+            Reference reference;
 
-        //Cas particulier de la propriété "Identifiant ISNI" :
-        if (propriete.contains("Identifiant ISNI")){
-            reference = ReferenceBuilder
-                    .newInstance()
-                    .withPropertyValue(new PropertyIdValueImpl(props.get("Source d'import"), iriWikiBase),
-                            Datamodel.makeStringValue("ISNI"))
-                    .withPropertyValue(new PropertyIdValueImpl(props.get("Identifiant de la zone"), iriWikiBase),
-                            Datamodel.makeStringValue("Marc_"+marc))
-                    .withPropertyValue(new PropertyIdValueImpl(props.get("Données source de la zone"), iriWikiBase),
-                            Datamodel.makeStringValue(valeurBrute))
-                    .build();
-        }
-        else { //Par défaut :
-            reference = ReferenceBuilder
-                    .newInstance()
-                    .withPropertyValue(new PropertyIdValueImpl(props.get("Identifiant de la zone"), iriWikiBase),
-                            Datamodel.makeStringValue("Marc_"+marc))
-                    .withPropertyValue(new PropertyIdValueImpl(props.get("Données source de la zone"), iriWikiBase),
-                            Datamodel.makeStringValue(valeurBrute))
-                    .build();
-        }
+            //Cas particulier de la propriété "Identifiant ISNI" :
+            if (propriete.contains("Identifiant ISNI")) {
+                reference = ReferenceBuilder
+                        .newInstance()
+                        .withPropertyValue(new PropertyIdValueImpl(props.get("Source d'import"), iriWikiBase),
+                                Datamodel.makeStringValue("ISNI"))
+                        .withPropertyValue(new PropertyIdValueImpl(props.get("Identifiant de la zone"), iriWikiBase),
+                                Datamodel.makeStringValue("Marc_" + marc))
+                        .withPropertyValue(new PropertyIdValueImpl(props.get("Données source de la zone"), iriWikiBase),
+                                Datamodel.makeStringValue(valeurBrute))
+                        .build();
+            } else { //Par défaut :
+                reference = ReferenceBuilder
+                        .newInstance()
+                        .withPropertyValue(new PropertyIdValueImpl(props.get("Identifiant de la zone"), iriWikiBase),
+                                Datamodel.makeStringValue("Marc_" + marc))
+                        .withPropertyValue(new PropertyIdValueImpl(props.get("Données source de la zone"), iriWikiBase),
+                                Datamodel.makeStringValue(valeurBrute))
+                        .build();
+            }
 
-        //Si la propriété ZoneXXX est connue :
-        if (props.get(propriete)!=null) {
-            Statement statement = StatementBuilder
-                    .forSubjectAndProperty(ItemIdValue.NULL, new PropertyIdValueImpl(props.get(propriete), iriWikiBase))
-                    .withValue(Datamodel.makeStringValue(valeur.strip()))  //Strip car en 103 par exemple, il y a des valeurs commençant ou terminant par des espaces..
-                    .withReference(reference)
-                    .withQualifier(new ValueSnakImpl(new PropertyIdValueImpl(props.get("Type d'entité"), iriWikiBase),Datamodel.makeItemIdValue("Q1",iriWikiBase)))
-                    .build();
-            itemDocumentBuilder = itemDocumentBuilder.withStatement(statement);
-        }
-        //Sinon si inconnue :
-        else {
-            logger.error("Il faut ajouter la propriété : "+propriete+" au fichier ProprietesWB.txt");
+            //Si la propriété ZoneXXX est connue :
+            if (props.get(propriete) != null) {
+                Statement statement = StatementBuilder
+                        .forSubjectAndProperty(ItemIdValue.NULL, new PropertyIdValueImpl(props.get(propriete), iriWikiBase))
+                        .withValue(Datamodel.makeStringValue(valeur.strip()))  //Strip car en 103 par exemple, il y a des valeurs commençant ou terminant par des espaces..
+                        .withReference(reference)
+                        .withQualifier(new ValueSnakImpl(new PropertyIdValueImpl(props.get("Type d'entité"), iriWikiBase), Datamodel.makeItemIdValue("Q1", iriWikiBase)))
+                        .build();
+                itemDocumentBuilder = itemDocumentBuilder.withStatement(statement);
+            }
+            //Sinon si inconnue :
+            else {
+                logger.error("Il faut ajouter la propriété : " + propriete + " au fichier ProprietesWB.txt");
+            }
         }
         return itemDocumentBuilder;
     }
@@ -230,70 +231,69 @@ public class DtoAutoriteToItem {
         //    "P1": ["<copie intégrale de la zone XXX>"]
         //}]
 
-        Reference reference = ReferenceBuilder
-                .newInstance()
-                .withPropertyValue(new PropertyIdValueImpl(props.get("Identifiant de la zone"), iriWikiBase),
-                        Datamodel.makeStringValue("Marc_"+marc))
-                .withPropertyValue(new PropertyIdValueImpl(props.get("Données source de la zone"), iriWikiBase),
-                        Datamodel.makeStringValue(valeurBrute))
-                .build();
+        if (valeur != null) {
+            Reference reference = ReferenceBuilder
+                    .newInstance()
+                    .withPropertyValue(new PropertyIdValueImpl(props.get("Identifiant de la zone"), iriWikiBase),
+                            Datamodel.makeStringValue("Marc_" + marc))
+                    .withPropertyValue(new PropertyIdValueImpl(props.get("Données source de la zone"), iriWikiBase),
+                            Datamodel.makeStringValue(valeurBrute))
+                    .build();
 
-        Integer annee = null;
-        Integer mois = null;
-        Integer jour = null;
-        valeur = valeur.strip();
-        //Pour les dates : 19xx; 19XX; 19..,19?? :
-        valeur = valeur.replaceAll("x|X|\\.|\\?","0");
-        //Pour les dates : 1877/11/01, 1958-0000 :
-        valeur = valeur.replaceAll("/|\\-","");
-        //Pour les dates : 1560    0 :
-        valeur = valeur.replace(" 0","").trim();
-        try {
-            if (Integer.parseInt(valeur)>0) {
-                if (valeur.length() == 8) {
-                    annee = Integer.parseInt(valeur.substring(0,4));
-                    mois = Integer.parseInt(valeur.substring(4,6));
-                    jour = Integer.parseInt(valeur.substring(6,8));
+            Integer annee = null;
+            Integer mois = null;
+            Integer jour = null;
+            valeur = valeur.strip();
+            //Pour les dates : 19xx; 19XX; 19..,19?? :
+            valeur = valeur.replaceAll("x|X|\\.|\\?", "0");
+            //Pour les dates : 1877/11/01, 1958-0000 :
+            valeur = valeur.replaceAll("/|\\-", "");
+            //Pour les dates : 1560    0 :
+            valeur = valeur.replace(" 0", "").trim();
+            try {
+                if (Integer.parseInt(valeur) > 0) {
+                    if (valeur.length() == 8) {
+                        annee = Integer.parseInt(valeur.substring(0, 4));
+                        mois = Integer.parseInt(valeur.substring(4, 6));
+                        jour = Integer.parseInt(valeur.substring(6, 8));
+                    } else if (valeur.length() == 6) {
+                        annee = Integer.parseInt(valeur.substring(0, 4));
+                        mois = Integer.parseInt(valeur.substring(4, 6));
+                        jour = 1;
+                    } else if (valeur.length() == 4) {
+                        annee = Integer.parseInt(valeur.substring(0, 4));
+                        mois = 1;
+                        jour = 1;
+                    }
                 }
-                else if (valeur.length() == 6){
-                    annee = Integer.parseInt(valeur.substring(0,4));
-                    mois = Integer.parseInt(valeur.substring(4,6));
-                    jour=1;
-                }
-                else if (valeur.length() == 4){
-                    annee = Integer.parseInt(valeur.substring(0,4));
-                    mois=1;
-                    jour=1;
+            } catch (Exception e) {
+                //logger.warn("addStmtTime, attention, pour la date : "+valeur+" : "+e.getMessage());
+            }
+
+            //Si la propriété ZoneXXX est connue :
+            if (props.get(propriete) != null) {
+                //Si une valeur pour la date a été trouvée :
+                if (annee != null && mois != null && jour != null) {
+                    //Gestion des propriétés de datatype Time : Datamodel.makeTimeValue
+                    //https://github.com/Wikidata/Wikidata-Toolkit/blob/c43d08dc5a449b24cf68dde9a58699aff603c430/wdtk-datamodel/src/test/java/org/wikidata/wdtk/datamodel/helpers/DatamodelTest.java
+                    Statement statement = StatementBuilder
+                            .forSubjectAndProperty(ItemIdValue.NULL, new PropertyIdValueImpl(props.get(propriete), iriWikiBase))
+                            .withValue(
+                                    Datamodel.makeTimeValue(annee, (byte) mois.intValue(), (byte) jour.intValue(),
+                                            //Précision à l'année :
+                                            // (byte) 0, (byte) 0, (byte) 0, TimeValue.PREC_YEAR, 0, 0, 0,
+                                            TimeValue.CM_GREGORIAN_PRO)
+                            )
+                            .withReference(reference)
+                            .withQualifier(new ValueSnakImpl(new PropertyIdValueImpl(props.get("Type d'entité"), iriWikiBase), Datamodel.makeItemIdValue("Q1", iriWikiBase)))
+                            .build();
+                    itemDocumentBuilder = itemDocumentBuilder.withStatement(statement);
                 }
             }
-        }
-        catch (Exception e){
-            logger.warn("addStmtTime, attention, pour la date : "+valeur+" : "+e.getMessage());
-        }
-
-        //Si la propriété ZoneXXX est connue :
-        if (props.get(propriete)!=null) {
-            //Si une valeur pour la date a été trouvée :
-            if (annee!=null && mois!=null && jour!=null) {
-                //Gestion des propriétés de datatype Time : Datamodel.makeTimeValue
-                //https://github.com/Wikidata/Wikidata-Toolkit/blob/c43d08dc5a449b24cf68dde9a58699aff603c430/wdtk-datamodel/src/test/java/org/wikidata/wdtk/datamodel/helpers/DatamodelTest.java
-                Statement statement = StatementBuilder
-                        .forSubjectAndProperty(ItemIdValue.NULL, new PropertyIdValueImpl(props.get(propriete), iriWikiBase))
-                        .withValue(
-                                Datamodel.makeTimeValue(annee, (byte) mois.intValue(), (byte) jour.intValue(),
-                                        //Précision à l'année :
-                                        // (byte) 0, (byte) 0, (byte) 0, TimeValue.PREC_YEAR, 0, 0, 0,
-                                        TimeValue.CM_GREGORIAN_PRO)
-                        )
-                        .withReference(reference)
-                        .withQualifier(new ValueSnakImpl(new PropertyIdValueImpl(props.get("Type d'entité"), iriWikiBase),Datamodel.makeItemIdValue("Q1",iriWikiBase)))
-                        .build();
-                itemDocumentBuilder = itemDocumentBuilder.withStatement(statement);
+            //Sinon si inconnue :
+            else {
+                logger.error("Il faut ajouter la propriété : " + propriete + " au fichier ProprietesWB.txt");
             }
-        }
-        //Sinon si inconnue :
-        else {
-            logger.error("Il faut ajouter la propriété : "+propriete+" au fichier ProprietesWB.txt");
         }
         return itemDocumentBuilder;
     }

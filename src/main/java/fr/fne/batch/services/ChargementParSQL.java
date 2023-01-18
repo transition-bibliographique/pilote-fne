@@ -94,34 +94,35 @@ public class ChargementParSQL {
 
             int lanceCommit = 0;
             for (int i=0;i<fichiers.length;i++) {
-                JacksonXmlModule xmlModule = new JacksonXmlModule();
-                xmlModule.setDefaultUseWrapper(false);
-                ObjectMapper objectMapper = new XmlMapper(xmlModule);
-                objectMapper.registerModule(new JaxbAnnotationModule());
-                Collection collection = objectMapper.readValue(new FileInputStream(fichiers[i]), Collection.class);
+                logger.info("Fichier traité : "+fichiers[i].getName());
 
-                for(Record record : collection.getRecordList()){
-                    recordNb++;
+                try {
+                    JacksonXmlModule xmlModule = new JacksonXmlModule();
+                    xmlModule.setDefaultUseWrapper(false);
+                    ObjectMapper objectMapper = new XmlMapper(xmlModule);
+                    objectMapper.registerModule(new JaxbAnnotationModule());
+                    Collection collection = objectMapper.readValue(new FileInputStream(fichiers[i]), Collection.class);
 
-                    /*
-                    lanceCommit++;
+                    for (Record record : collection.getRecordList()) {
+                        recordNb++;
 
-                    if (lanceCommit==1000){
-                        di.commit();
-                        lanceCommit=0;
-                    }*/
+                        ItemDocument itemDocument = dtoAutoriteToItem.unmarshallerNotice(record, props);
 
-                    ItemDocument itemDocument = dtoAutoriteToItem.unmarshallerNotice(record, props);
-
-                    if (itemDocument != null) {
-                        di.createItem(JsonSerializer.getJsonString(itemDocument));
+                        if (itemDocument != null) {
+                            di.createItem(JsonSerializer.getJsonString(itemDocument));
+                        }
                     }
+                    di.commit();
                 }
+                catch (Exception e){
+                    logger.error("Erreur : "+e.getMessage());
+                }
+
             }
             di.commit();
 
             // Ensuite, il faut indexer dans Elastic Search et dans WDQS (SPARQL),
-            // avec les scripts : (resources/scripts) indexationES et indexationSPARQL (.ps1 ou .sh)
+            // avec les scripts : (scriptsIndexation) indexationES et indexationSPARQL (.ps1 ou .sh) du dépôt pilote-fne-docker
 
             stopWatch.stop();
 

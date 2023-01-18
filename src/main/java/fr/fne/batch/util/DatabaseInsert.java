@@ -309,8 +309,9 @@ public class DatabaseInsert {
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
         byte[] byteArrray = label.getBytes();
 
-        if (byteArrray.length > 254) {
-            label = new String(Arrays.copyOfRange(byteArrray, 0, 254));
+        //Si substring jusqu'à 254, problème dans certains cas...
+        if (byteArrray.length > 250) {
+            label = new String(Arrays.copyOfRange(byteArrray, 0, 250));
         }
 
         String description = null;

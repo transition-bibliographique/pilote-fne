@@ -61,6 +61,7 @@ public class DtoAutoriteToItem {
             //<valeur de zone 003>
             //<valeur de zone 033 $a>
             String description = "";
+            String alias = "";
 
             //construction label
             int posTranslit = -1;
@@ -84,16 +85,26 @@ public class DtoAutoriteToItem {
                     pos200++;
                     if ((posTranslit!=-1 && posTranslit==pos200) || posTranslit==-1) {
                         for (Subfield s : d.getSubfieldList()) {
-                            if (s.getCode().equalsIgnoreCase("a")) {
-                                label += s.getValue();
-                            } else if (s.getCode().equalsIgnoreCase("b")) {
-                                label += ", " + s.getValue();
-                            } else if (s.getCode().equalsIgnoreCase("d")) {
-                                label += " " + s.getValue();
-                            } else if (s.getCode().equalsIgnoreCase("f")) {
-                                label += ", " + s.getValue();
+                            switch (s.getCode().toLowerCase()) {
+                                case "a": label += s.getValue(); break;
+                                case "b" : label += ", " + s.getValue(); break;
+                                case "d" : label += " " + s.getValue(); break;
+                                case "f" : label += ", " + s.getValue(); break;
                             }
                         }
+                    }
+                    else {
+                        alias = "";
+                        for (Subfield s : d.getSubfieldList()) {
+                            switch (s.getCode().toLowerCase()) {
+                                case "a": alias += s.getValue(); break;
+                                case "b": alias += ", " + s.getValue(); break;
+                                case "d": alias += " " + s.getValue(); break;
+                                case "f": alias += ", " + s.getValue(); break;
+                            }
+                        }
+                        logger.info("Alias ==>"+alias);
+                        itemDocumentBuilder = itemDocumentBuilder.withAlias(alias, "fr");
                     }
                 }
             }
@@ -114,7 +125,7 @@ public class DtoAutoriteToItem {
 
             String ark = r.getDatafieldList().stream()
                     .filter(z -> z.getTag().equals("033"))
-                    .filter(z -> z.getSubfieldList().stream().anyMatch(s -> s.getCode().equals("2") &&  s.getValue().equalsIgnoreCase("BNF")))
+                    .filter(z -> z.getSubfieldList().stream().anyMatch(sz -> sz.getCode().equals("2") &&  sz.getValue().equalsIgnoreCase("BNF")))
                     .flatMap(sz -> sz.getSubfieldList().stream())
                     .filter(sz -> sz.getCode().equals("a"))
                     .map(sz -> sz.getValue())
@@ -137,6 +148,28 @@ public class DtoAutoriteToItem {
                 description += ark ;
             }
             itemDocumentBuilder = itemDocumentBuilder.withDescription(description, "fr");
+
+            //construction aliases
+            // Nom 	<valeur de 700 $a>
+            // Prénom 	<valeur de 700 $b>
+            // Langue de l'interface	par défaut fr
+
+            for (Datafield d : r.getDatafieldList()) {
+                if (d.getTag().equalsIgnoreCase("400") || d.getTag().equalsIgnoreCase("700")) {
+                    alias = "";
+                    for (Subfield s : d.getSubfieldList()) {
+                       switch (s.getCode().toLowerCase()) {
+                           case "a": alias += s.getValue(); break;
+                           case "b" : alias += ", " + s.getValue(); break;
+                           case "d" : alias += " " + s.getValue(); break;
+                           case "f" : alias += ", " + s.getValue(); break;
+                        }
+                    }
+                    logger.info("Alias ==>"+alias);
+                    itemDocumentBuilder = itemDocumentBuilder.withAlias(alias, "fr");
+                }
+            }
+
 
 
             //Leader :

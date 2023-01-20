@@ -310,8 +310,8 @@ public class DatabaseInsert {
         byte[] byteArrray = label.getBytes();
 
         //Si substring jusqu'à 254, problème dans certains cas...
-        if (byteArrray.length > 250) {
-            label = new String(Arrays.copyOfRange(byteArrray, 0, 250));
+        if (byteArrray.length > 253) {
+            label = new String(Arrays.copyOfRange(byteArrray, 0, 253));
         }
 
         String description = null;

@@ -61,7 +61,9 @@ public class DtoAutoriteToItem {
             //<valeur de zone 003>
             //<valeur de zone 033 $a>
             String description = "";
-            String alias = "";
+
+            //String alias = "";
+            //ArrayList<String> listeAlias = new ArrayList<>();
 
             //construction label
             int posTranslit = -1;
@@ -93,7 +95,7 @@ public class DtoAutoriteToItem {
                             }
                         }
                     }
-                    else {
+                    /*else {
                         alias = "";
                         for (Subfield s : d.getSubfieldList()) {
                             switch (s.getCode().toLowerCase()) {
@@ -103,9 +105,8 @@ public class DtoAutoriteToItem {
                                 case "f": alias += ", " + s.getValue(); break;
                             }
                         }
-                        logger.info("Alias ==>"+alias);
-                        itemDocumentBuilder = itemDocumentBuilder.withAlias(alias, "fr");
-                    }
+                        listeAlias.add(alias);
+                    }*/
                 }
             }
             // construction description
@@ -154,7 +155,7 @@ public class DtoAutoriteToItem {
             // Prénom 	<valeur de 700 $b>
             // Langue de l'interface	par défaut fr
 
-            for (Datafield d : r.getDatafieldList()) {
+            /*for (Datafield d : r.getDatafieldList()) {
                 if (d.getTag().equalsIgnoreCase("400") || d.getTag().equalsIgnoreCase("700")) {
                     alias = "";
                     for (Subfield s : d.getSubfieldList()) {
@@ -165,12 +166,14 @@ public class DtoAutoriteToItem {
                            case "f" : alias += ", " + s.getValue(); break;
                         }
                     }
-                    logger.info("Alias ==>"+alias);
-                    itemDocumentBuilder = itemDocumentBuilder.withAlias(alias, "fr");
+                    listeAlias.add(alias);
                 }
             }
 
-
+            List<String> aliasNoDoublon = listeAlias.stream().distinct().collect(Collectors.toList());
+            for (String al : aliasNoDoublon){
+                itemDocumentBuilder = itemDocumentBuilder.withAlias(al, "fr");
+            }*/
 
             //Leader :
             itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Zoneleader", r.getLeader(), "leader", objectMapper.writeValueAsString(r.getLeader()));

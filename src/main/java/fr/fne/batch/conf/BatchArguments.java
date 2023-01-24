@@ -47,13 +47,13 @@ public class BatchArguments {
             this.isSql = this.cmd.hasOption("sql");
 
             if(!isFormat() && !isSql()){
-                this.formatter.printHelp("Arguments absent", this.options);
+                this.formatter.printHelp("Arguments absent, utiliser -f pour la creation du format ou -s pour l'insertion sql", this.options);
                 // Stop the batch.
                 this.initiateShutdown();
             }
 
         } catch (ParseException e) {
-            this.formatter.printHelp("Arguments non valides", this.options);
+            this.formatter.printHelp("Arguments non valides, utiliser -f pour la creation du format ou -s pour l'insertion sql", this.options);
 
             // Stop the batch.
             this.initiateShutdown();

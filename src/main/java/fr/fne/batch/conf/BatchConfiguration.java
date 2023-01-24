@@ -1,6 +1,7 @@
 package fr.fne.batch.conf;
 
 import fr.fne.batch.processor.CollectionItemProcessor;
+import fr.fne.batch.tasklet.FormatTasklet;
 import fr.fne.batch.writer.ItemDocumentWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -11,6 +12,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.IteratorItemReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -43,6 +45,9 @@ public class BatchConfiguration {
     @Value("${mysql.pwd}")
     private String mysqlPwd;
 
+    @Autowired
+    private BatchArguments batchArguments;
+
     @Bean
     public ItemReader<File> reader () throws IOException {
 
@@ -69,8 +74,26 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager) throws SQLException, IOException {
-        return new StepBuilder("step1", jobRepository)
+    public FormatTasklet formatTasklet() {
+        return new FormatTasklet();
+    }
+
+    /**
+     * Etape de création du format
+     */
+    @Bean
+    public Step stepFormat (JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        return new StepBuilder("stepFormat", jobRepository)
+                .tasklet(this.formatTasklet(), transactionManager)
+                .build();
+    }
+
+    /**
+     * Etape de création des données
+     */
+    @Bean
+    public Step stepData (JobRepository jobRepository, PlatformTransactionManager transactionManager) throws SQLException, IOException {
+        return new StepBuilder("stepData", jobRepository)
                 .<File, List<ItemDocument>> chunk(10, transactionManager)
                 .reader(this.reader())
                 .processor(this.processor())
@@ -79,12 +102,30 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Job importUserJob(JobRepository jobRepository, Step step1) throws SQLException, IOException {
+    public Job importUserJob(JobRepository jobRepository, Step stepData, Step stepFormat) throws SQLException, IOException {
+
+        // Seulement le format
+        if(batchArguments.isFormat() && !batchArguments.isSql()){
+            return new JobBuilder("insertWikibase", jobRepository)
+                    .incrementer(new RunIdIncrementer())
+                    .flow(stepFormat)
+                    .end()
+                    .build();
+        }
+        // Le format + les données
+        if(batchArguments.isFormat() && batchArguments.isSql()) {
+            return new JobBuilder("insertWikibase", jobRepository)
+                    .incrementer(new RunIdIncrementer())
+                    .flow(stepFormat)
+                    .next(stepData)
+                    .end()
+                    .build();
+        }
+        // Seulement les données
         return new JobBuilder("insertWikibase", jobRepository)
                 .incrementer(new RunIdIncrementer())
-                .flow(step1)
+                .flow(stepData)
                 .end()
                 .build();
     }
-
 }

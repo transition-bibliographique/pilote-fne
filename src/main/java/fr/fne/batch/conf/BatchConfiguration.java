@@ -2,7 +2,11 @@ package fr.fne.batch.conf;
 
 import fr.fne.batch.processor.CollectionItemProcessor;
 import fr.fne.batch.tasklet.FormatTasklet;
+import fr.fne.batch.util.ApiWB;
+import fr.fne.batch.util.Format;
 import fr.fne.batch.writer.ItemDocumentWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -29,27 +33,35 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configuration
 @ComponentScan(basePackages = {"fr.fne.batch"})
 public class BatchConfiguration {
 
+    private final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
     @Value("${abes.dump}")
     private String cheminDump;
-
     @Value("${mysql.url}")
     private String mysqlUrl;
     @Value("${mysql.login}")
     private String mysqlLogin;
     @Value("${mysql.pwd}")
     private String mysqlPwd;
-
     @Autowired
     private BatchArguments batchArguments;
-
+    @Autowired
+    private ApiWB apiWB;
+    @Autowired
+    private Format format;
+    private  Map<String, String> props;
     @Bean
-    public ItemReader<File> reader () throws IOException {
+    public ItemReader<File> reader () throws Exception {
+
+        //Récupération de toutes les propriétés du WB
+        this.props = format.get();
+        logger.info("Nombre de propriétés chargées : " + props.size());
 
         //Utilisation d'un dump des notices (5000 notices par fichier):
         //Le dump complet est disponible ici (Abes, sur KAT): /applis/portail/SitemapNoticesSudoc/noticesautorites/dump/
@@ -64,7 +76,7 @@ public class BatchConfiguration {
 
     @Bean
     public CollectionItemProcessor processor() {
-        return new CollectionItemProcessor();
+        return new CollectionItemProcessor(this.props);
     }
 
     @Bean
@@ -92,7 +104,7 @@ public class BatchConfiguration {
      * Etape de création des données
      */
     @Bean
-    public Step stepData (JobRepository jobRepository, PlatformTransactionManager transactionManager) throws SQLException, IOException {
+    public Step stepData (JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
         return new StepBuilder("stepData", jobRepository)
                 .<File, List<ItemDocument>> chunk(10, transactionManager)
                 .reader(this.reader())
@@ -102,7 +114,7 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Job importUserJob(JobRepository jobRepository, Step stepData, Step stepFormat) throws SQLException, IOException {
+    public Job importUserJob(JobRepository jobRepository, Step stepData, Step stepFormat) {
 
         // Seulement le format
         if(batchArguments.isFormat() && !batchArguments.isSql()){

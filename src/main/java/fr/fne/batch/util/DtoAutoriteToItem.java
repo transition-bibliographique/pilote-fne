@@ -37,8 +37,8 @@ public class DtoAutoriteToItem {
      * @param proprietes
      * @return
      */
-    public ItemDocument unmarshallerNotice(Record r, Map<String,String> proprietes)
-    {
+    public ItemDocument unmarshallerNotice(Record r, Map<String,String> proprietes) {
+
         props = proprietes;
 
         ItemDocumentBuilder itemDocumentBuilder = ItemDocumentBuilder.forItemId(ItemIdValue.NULL);

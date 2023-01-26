@@ -56,11 +56,21 @@ public class BatchConfiguration {
     @Autowired
     private Format format;
     private  Map<String, String> props;
+
     @Bean
     public ItemReader<File> reader () throws Exception {
 
-        //Récupération de toutes les propriétés du WB
-        this.props = format.get();
+        props = format.get();
+        //Si pas de propriétés, alors création (pr éviter d'appeler 2x fois le BatchApplication : creationProprietes puis chargement)
+        if (props.size()==0){
+            // Connextion à Wikibase et récupération du csrftoken
+            String csrftoken = apiWB.connexionWB();
+            logger.info("The csrftoken is : " + csrftoken);
+            // Création du format
+            format.createWithFile(csrftoken);
+            // Map des propriétés
+            props = format.get();
+        }
         logger.info("Nombre de propriétés chargées : " + props.size());
 
         //Utilisation d'un dump des notices (5000 notices par fichier):
@@ -121,15 +131,6 @@ public class BatchConfiguration {
             return new JobBuilder("insertWikibase", jobRepository)
                     .incrementer(new RunIdIncrementer())
                     .flow(stepFormat)
-                    .end()
-                    .build();
-        }
-        // Le format + les données
-        if(batchArguments.isFormat() && batchArguments.isSql()) {
-            return new JobBuilder("insertWikibase", jobRepository)
-                    .incrementer(new RunIdIncrementer())
-                    .flow(stepFormat)
-                    .next(stepData)
                     .end()
                     .build();
         }

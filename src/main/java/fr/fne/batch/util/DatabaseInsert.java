@@ -235,13 +235,13 @@ public class DatabaseInsert {
         if( rs.next()) {
             contentModelItem = rs.getInt(1);
         } else {
-            rs.close();
             connection.createStatement().execute("INSERT INTO content_models (model_name ) VALUES('wikibase-item')");
             rs = connection.createStatement().executeQuery("SELECT model_id FROM content_models WHERE model_name='wikibase-item'");
             rs.next();
             contentModelItem = rs.getInt(1);
             logger.debug("Created content model for wikibase-item with id "+contentModelItem );
         }
+        rs.close();
         stmt.close();
 
     }

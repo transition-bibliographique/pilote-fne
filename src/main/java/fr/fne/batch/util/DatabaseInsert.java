@@ -7,10 +7,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -105,23 +102,11 @@ public class DatabaseInsert {
         connection.close();
     }
 
-    private void work(InputStream stream) throws SQLException, IOException {
-        final BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-        String line = in.readLine();
-        while (line != null) {
-            createItem(line);
-            line = in.readLine();
-        }
-
-        in.close();
-    }
-
     public void startTransaction() throws SQLException {
         connection.setAutoCommit(false);
     }
 
     public void commit() throws SQLException {
-
         //Version avec executeBatch()
         pstmtInsertText.executeBatch();
         pstmtInsertPage.executeBatch();
@@ -155,10 +140,10 @@ public class DatabaseInsert {
         pstmtUpdateWbIdCounters = connection.prepareStatement("UPDATE wb_id_counters SET id_value=? WHERE id_type='wikibase-item'");
         pstmtSelectLastItemId = connection.prepareStatement("SELECT id_value  AS next_id from wb_id_counters where id_type = 'wikibase-item'");
         pstmtSelectItem = connection.prepareStatement("SELECT * FROM page WHERE page_namespace=120 AND page_title=?");
-
         //ACT
         pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (?,?,?,'120',?,?,0,0,0,?,?,0,1,'mw.new',2,'172.18.0.1',0,?,0,0,NULL,'','')");
 
+        //ACT
         pstmtSelect_wbt_text  = connection.prepareStatement("SELECT wbx_id FROM wbt_text WHERE wbx_text=?");
         pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(NULL,?)");
 
@@ -243,7 +228,6 @@ public class DatabaseInsert {
         }
         rs.close();
         stmt.close();
-
     }
 
     /**
@@ -262,7 +246,6 @@ public class DatabaseInsert {
 
 
     public void createItem(String jsonString) throws SQLException {
-
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 

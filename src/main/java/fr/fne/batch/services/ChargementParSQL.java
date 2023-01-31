@@ -60,7 +60,7 @@ public class ChargementParSQL {
         logger.info("Chargement par SQL");
 
         try {
-            // Connextion à Wikibase et récupération du csrftoken
+            // Connexion à Wikibase et récupération du csrftoken
             String csrftoken = apiWB.connexionWB();
             logger.info("The csrftoken is : " + csrftoken);
 

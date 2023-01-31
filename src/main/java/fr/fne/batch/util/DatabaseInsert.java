@@ -252,6 +252,9 @@ public class DatabaseInsert {
         //Moins une heure : pour que le wdqs-updater ne traite pas ces insertions
         final String timestamp = LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_DATE_TIME).replaceAll("[T:-]", "").substring(0, 14);
 
+        if (json.optString("id") != null) {
+            logger.info("CreateItem en modification ! Id trouvé : " + json.optString("id"));
+        }
 
         //Cas de caractères UTF-8 qui, passés en VARBINARY, font plus de 255 :
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
@@ -274,10 +277,11 @@ public class DatabaseInsert {
             aliases = json.optJSONObject("aliases").optJSONArray(LANG);
         }
 
-        // /!\ Un label + description ne peuvent pas être inséré 2 x . Ce test n'est pas fait par ce programme /!\
+        // /!\ Un label + description ne peuvent pas être insérés 2 x . Ce test n'est pas fait par ce programme /!\
 
         //Le label et la description doivent être différents : ok avec le test ci-dessous
-        if (!label.equals(description)) {
+        //Ajout test sur id présent pour le cas d'une modification
+        if (!label.equals(description) && json.optString("id")==null) {
 
             lastQNumber++;
 

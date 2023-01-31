@@ -53,7 +53,7 @@ public class ChargementParAPI {
         logger.info("Chargement par API");
 
         try {
-            // Connextion à Wikibase et récupération du csrftoken
+            // Connexion à Wikibase et récupération du csrftoken
             String csrftoken = apiWB.connexionWB();
             logger.info("The csrftoken is : " + csrftoken);
 

@@ -25,7 +25,7 @@ public class Format {
     private final Logger logger = LoggerFactory.getLogger(Format.class);
 
     @Autowired
-    private ApiWB util;
+    private ApiWB apiWB;
 
     /*
      Création du format :
@@ -90,7 +90,7 @@ public class Format {
 
             params.put("data", JsonSerializer.getJsonString(propertyDocument));
 
-            JSONObject json = util.postJson(params);
+            JSONObject json = apiWB.postJson(params);
             //logger.info("==>" + json.toString());
             return json.getJSONObject("entity").optString("id");
     }
@@ -101,7 +101,7 @@ public class Format {
      */
     public Map get() throws Exception {
         // Getting namespace Property id
-        JSONObject json = util.getJson("?action=query&format=json&meta=siteinfo&siprop=namespaces");
+        JSONObject json = apiWB.getJson("?action=query&format=json&meta=siteinfo&siprop=namespaces");
         Iterator<String> it = json.optJSONObject("query").optJSONObject("namespaces").keys();
         String idNamespaceProp = "";
         while (it.hasNext() && idNamespaceProp.isEmpty()) {
@@ -115,7 +115,7 @@ public class Format {
         // TODO : tester si au delà de 500, ça fonctionne :)
         String lastProp = "";
         while (lastProp != null) {
-            json = util.getJson("?action=query&format=json&list=allpages&apnamespace="
+            json = apiWB.getJson("?action=query&format=json&list=allpages&apnamespace="
                     + idNamespaceProp + "&aplimit=500&apfrom=" + lastProp);
             JSONArray liste = json.optJSONObject("query").optJSONArray("allpages");
             for (int i = 0; i < liste.length(); i++) {
@@ -124,7 +124,7 @@ public class Format {
                 String title = prop.optString("title");
                 String propertyId = title.replace("Property:", "");
 
-                JSONObject property = util.getJson("?action=wbgetentities&format=json&ids=" + propertyId);
+                JSONObject property = apiWB.getJson("?action=wbgetentities&format=json&ids=" + propertyId);
 
                 JSONObject theProperty =  property.optJSONObject("entities").optJSONObject(propertyId);
                 if (theProperty!=null){
@@ -173,7 +173,7 @@ public class Format {
 
         params.put("data", JsonSerializer.getJsonString(itemDocument));
 
-        JSONObject json = util.postJson(params);
+        JSONObject json = apiWB.postJson(params);
         //logger.info("==>" + json.toString());
         return json.getJSONObject("entity").optString("id");
     }

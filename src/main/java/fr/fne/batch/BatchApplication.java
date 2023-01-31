@@ -3,6 +3,7 @@ package fr.fne.batch;
 import fr.fne.batch.services.ChargementParAPI;
 import fr.fne.batch.services.ChargementParSQL;
 import fr.fne.batch.services.CreationFormat;
+import fr.fne.batch.services.ModificationParSQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class BatchApplication implements CommandLineRunner {
 
 	@Autowired
 	private ChargementParSQL chargementParSQL;
+
+	@Autowired
+	private ModificationParSQL modificationParSQL;
 
 	private final Logger logger = LoggerFactory.getLogger(BatchApplication.class);
 
@@ -69,6 +73,9 @@ public class BatchApplication implements CommandLineRunner {
 			}
 			else if (action.equalsIgnoreCase("SQL")) {
 				chargementParSQL.go();
+			}
+			else if (action.equalsIgnoreCase("Modif")) {
+				modificationParSQL.go();
 			}
 		} else {
 			logger.info("BatchApplication : pas de paramètre");

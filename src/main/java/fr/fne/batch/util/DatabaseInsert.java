@@ -291,7 +291,10 @@ public class DatabaseInsert {
             aliases = json.optJSONObject("aliases").optJSONArray(LANG);
         }
 
-        if (label != description) {
+        // /!\ Un label + description ne peuvent pas être inséré 2 x . Ce test n'est pas fait par ce programme /!\
+
+        //Le label et la description doivent être différents : ok avec le test ci-dessous
+        if (!label.equals(description)) {
 
             lastQNumber++;
 

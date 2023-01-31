@@ -17,6 +17,7 @@ import org.wikidata.wdtk.datamodel.implementation.PropertyIdValueImpl;
 import org.wikidata.wdtk.datamodel.implementation.ValueSnakImpl;
 import org.wikidata.wdtk.datamodel.interfaces.*;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 @Service
@@ -62,8 +63,8 @@ public class DtoAutoriteToItem {
             //<valeur de zone 033 $a>
             String description = "";
 
-            //String alias = "";
-            //ArrayList<String> listeAlias = new ArrayList<>();
+            String alias = "";
+            ArrayList<String> listeAlias = new ArrayList<>();
 
             //construction label
             int posTranslit = -1;
@@ -95,7 +96,7 @@ public class DtoAutoriteToItem {
                             }
                         }
                     }
-                    /*else {
+                    else {
                         alias = "";
                         for (Subfield s : d.getSubfieldList()) {
                             switch (s.getCode().toLowerCase()) {
@@ -106,7 +107,7 @@ public class DtoAutoriteToItem {
                             }
                         }
                         listeAlias.add(alias);
-                    }*/
+                    }
                 }
             }
             // construction description
@@ -155,7 +156,7 @@ public class DtoAutoriteToItem {
             // Prénom 	<valeur de 700 $b>
             // Langue de l'interface	par défaut fr
 
-            /*for (Datafield d : r.getDatafieldList()) {
+            for (Datafield d : r.getDatafieldList()) {
                 if (d.getTag().equalsIgnoreCase("400") || d.getTag().equalsIgnoreCase("700")) {
                     alias = "";
                     for (Subfield s : d.getSubfieldList()) {
@@ -170,10 +171,12 @@ public class DtoAutoriteToItem {
                 }
             }
 
-            List<String> aliasNoDoublon = listeAlias.stream().distinct().collect(Collectors.toList());
-            for (String al : aliasNoDoublon){
+
+            //List<String> aliasNoDoublon = listeAlias.stream().distinct().collect(Collectors.toList());
+            for (String al : listeAlias){
                 itemDocumentBuilder = itemDocumentBuilder.withAlias(al, "fr");
-            }*/
+            }
+
 
             //Leader :
             itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Zoneleader", r.getLeader(), "leader", objectMapper.writeValueAsString(r.getLeader()));

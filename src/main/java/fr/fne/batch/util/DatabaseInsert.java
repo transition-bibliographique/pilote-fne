@@ -48,15 +48,13 @@ public class DatabaseInsert {
     private PreparedStatement pstmtInsertRecentChanges;
 
     //ACT
+    private PreparedStatement pstmtSelect_wbt_text;
     private PreparedStatement pstmtInsert_wbt_text;
+    private PreparedStatement pstmtSelect_wbt_text_in_lang;
     private PreparedStatement pstmtInsert_wbt_text_in_lang;
+    private PreparedStatement pstmtSelect_wbt_term_in_lang;
     private PreparedStatement pstmtInsert_wbt_term_in_lang;
     private PreparedStatement pstmtInsert_wbt_item_terms;
-
-    private long wbxId = 0;
-    private long wbxlId = 0;
-    private long wbtlId = 0;
-    private long wbitId = 0;
     private Map<String, String> wbt_type = new HashMap<>();
 
     private int lastQNumber = 0;
@@ -96,8 +94,11 @@ public class DatabaseInsert {
         pstmtInsertRecentChanges.close();
 
         //ACT
+        pstmtSelect_wbt_text.close();
         pstmtInsert_wbt_text.close();
+        pstmtSelect_wbt_text_in_lang.close();
         pstmtInsert_wbt_text_in_lang.close();
+        pstmtSelect_wbt_term_in_lang.close();
         pstmtInsert_wbt_term_in_lang.close();
         pstmtInsert_wbt_item_terms.close();
 
@@ -132,9 +133,6 @@ public class DatabaseInsert {
         pstmtInsertSlots.executeBatch();
         pstmtInsertRecentChanges.executeBatch();
         pstmtUpdateWbIdCounters.executeBatch();
-        pstmtInsert_wbt_text.executeBatch();
-        pstmtInsert_wbt_text_in_lang.executeBatch();
-        pstmtInsert_wbt_term_in_lang.executeBatch();
         pstmtInsert_wbt_item_terms.executeBatch();
         //A enlever si pas executeBatch()
 
@@ -160,10 +158,20 @@ public class DatabaseInsert {
 
         //ACT
         pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (?,?,?,'120',?,?,0,0,0,?,?,0,1,'mw.new',2,'172.18.0.1',0,?,0,0,NULL,'','')");
-        pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(?,?)");
-        pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(?,?,?)");
-        pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(?,?,?)");
-        pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(?,?,?)");
+
+        pstmtSelect_wbt_text  = connection.prepareStatement("SELECT wbx_id FROM wbt_text WHERE wbx_text=?");
+        pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(NULL,?)");
+
+        pstmtSelect_wbt_text_in_lang = connection.prepareStatement("SELECT wbxl_id FROM wbt_text_in_lang, wbt_text " +
+                                                                        "WHERE wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
+        pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(NULL,?,?)");
+
+        pstmtSelect_wbt_term_in_lang = connection.prepareStatement("SELECT wbtl_id FROM wbt_term_in_lang, wbt_text_in_lang, " +
+                                                                        "wbt_text WHERE wbtl_text_in_lang_id=wbxl_id AND wbtl_type_id=? " +
+                                                                        "AND wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
+        pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(NULL,?,?)");
+
+        pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(NULL,?,?)");
 
 
         //Récupération du dernier Q créé (au départ il y a déjà les 2 Q : Personne et IPP)
@@ -212,30 +220,6 @@ public class DatabaseInsert {
         }
         rs.close();
 
-        rs = stmt.executeQuery("SELECT max(wbx_id) FROM wbt_text");
-        if (rs.next()) {
-            wbxId = rs.getLong(1);
-        }
-        rs.close();
-
-        rs = stmt.executeQuery("SELECT max(wbxl_id) FROM wbt_text_in_lang");
-        if (rs.next()) {
-            wbxlId = rs.getLong(1);
-        }
-        rs.close();
-
-        rs = stmt.executeQuery("SELECT max(wbtl_id) FROM wbt_term_in_lang");
-        if (rs.next()) {
-            wbtlId = rs.getLong(1);
-        }
-        rs.close();
-
-        rs = stmt.executeQuery("SELECT max(wbit_id) FROM wbt_item_terms");
-        if (rs.next()) {
-            wbitId = rs.getLong(1);
-        }
-        rs.close();
-
         //ACT : contient label, description  et alias
         //Ajout de ces 2 lignes si pas d'Item/Q avec description et/ou alias créé au départ
         //connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('description')");
@@ -277,7 +261,7 @@ public class DatabaseInsert {
     }
 
 
-    public String createItem(String jsonString) throws SQLException {
+    public void createItem(String jsonString) throws SQLException {
 
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
@@ -285,25 +269,6 @@ public class DatabaseInsert {
         //Moins une heure : pour que le wdqs-updater ne traite pas ces insertions
         final String timestamp = LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_DATE_TIME).replaceAll("[T:-]", "").substring(0, 14);
 
-        lastQNumber++;
-
-        final String itemId = "Q" + lastQNumber;
-
-        // Does the specified item already have an ID?
-        if (!json.has("id")) {
-            json.put("id", itemId);
-
-            // All statements also need this ID
-            if( json.has("claims")) {
-                final JSONObject claims = json.getJSONObject("claims");
-                for (String claim : claims.keySet()) {
-                    final JSONArray list = claims.getJSONArray(claim);
-                    for (int i = 0; i < list.length(); i++) {
-                        list.getJSONObject(i).put("id", itemId + "$" + UUID.randomUUID().toString());
-                    }
-                }
-            }
-        }
 
         //Cas de caractères UTF-8 qui, passés en VARBINARY, font plus de 255 :
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
@@ -326,134 +291,192 @@ public class DatabaseInsert {
             aliases = json.optJSONObject("aliases").optJSONArray(LANG);
         }
 
-        try {
-            final String data = json.toString();
+        if (label != description) {
 
-            //ACT ajout des tables wbt_*  au début car un doublon peut provoquer une exception :
-            insert_wbt_table(label,"label");
+            lastQNumber++;
 
-            if (description!=null) {
-                insert_wbt_table(description, "description");
-            }
+            final String itemId = "Q" + lastQNumber;
 
-            if (aliases!=null) {
-                for (int i = 0; i < aliases.length(); i++) {
-                    String alias = aliases.getJSONObject(i).optString("value");
-                    if (alias.length() > 254)
-                        alias = alias.substring(0, 254);
+            // Does the specified item already have an ID?
+            if (!json.has("id")) {
+                json.put("id", itemId);
 
-                    insert_wbt_table(alias, "alias");
+                // All statements also need this ID
+                if (json.has("claims")) {
+                    final JSONObject claims = json.getJSONObject("claims");
+                    for (String claim : claims.keySet()) {
+                        final JSONArray list = claims.getJSONArray(claim);
+                        for (int i = 0; i < list.length(); i++) {
+                            list.getJSONObject(i).put("id", itemId + "$" + UUID.randomUUID().toString());
+                        }
+                    }
                 }
             }
 
 
-            textId++;
-            pstmtInsertText.setLong(1, textId);
-            pstmtInsertText.setString(2, data);
-            executeUpdate(pstmtInsertText);
+            try {
+                final String data = json.toString();
 
-            pstmtInsertPage.setString(2, itemId);
-            pstmtInsertPage.setString(3, timestamp);
-            pstmtInsertPage.setString(4, timestamp);
-            pstmtInsertPage.setLong(5, textId);
-            pstmtInsertPage.setInt(6, data.length());
+                //ACT ajout des tables wbt_*  au début car un doublon peut provoquer une exception :
+                insert_wbt_table(label, "label");
 
-            pageId++;
-            pstmtInsertPage.setLong(1, pageId);
-            executeUpdate(pstmtInsertPage);
+                if (description != null) {
+                    insert_wbt_table(description, "description");
+                }
 
-            pstmtInsertRevision.setLong(1, pageId);
-            pstmtInsertRevision.setLong(2, pageId);
-            pstmtInsertRevision.setString(3, timestamp);
-            pstmtInsertRevision.setInt(4, data.length());
-            //pstmtInsertRevision.setLong(4, textId);
-            pstmtInsertRevision.setString(5, sha1base36(data));
-            executeUpdate(pstmtInsertRevision);
+                if (aliases != null) {
+                    for (int i = 0; i < aliases.length(); i++) {
+                        String alias = aliases.getJSONObject(i).optString("value");
+                        if (alias.length() > 254)
+                            alias = alias.substring(0, 254);
 
-            final String comment = "/* wbeditentity-create:2|en */ " + label + ", " + description;
+                        insert_wbt_table(alias, "alias");
+                    }
+                }
 
-            pstmtInsertComment.setInt(2, comment.hashCode());
-            pstmtInsertComment.setString(3, comment);
+                textId++;
+                pstmtInsertText.setLong(1, textId);
+                pstmtInsertText.setString(2, data);
+                executeUpdate(pstmtInsertText);
 
-            commentId++;
-            pstmtInsertComment.setLong(1, commentId);
-            executeUpdate(pstmtInsertComment);
+                pstmtInsertPage.setString(2, itemId);
+                pstmtInsertPage.setString(3, timestamp);
+                pstmtInsertPage.setString(4, timestamp);
+                pstmtInsertPage.setLong(5, textId);
+                pstmtInsertPage.setInt(6, data.length());
 
-            pstmtInsertRevisionComment.setLong(1, textId);
-            pstmtInsertRevisionComment.setLong(2, commentId);
-            executeUpdate(pstmtInsertRevisionComment);
+                pageId++;
+                pstmtInsertPage.setLong(1, pageId);
+                executeUpdate(pstmtInsertPage);
 
-            pstmtInsertRevisionActor.setLong(1, textId);
-            pstmtInsertRevisionActor.setInt(2, ACTOR);
-            pstmtInsertRevisionActor.setString(3, timestamp);
-            pstmtInsertRevisionActor.setLong(4, pageId);
-            executeUpdate(pstmtInsertRevisionActor);
+                pstmtInsertRevision.setLong(1, pageId);
+                pstmtInsertRevision.setLong(2, pageId);
+                pstmtInsertRevision.setString(3, timestamp);
+                pstmtInsertRevision.setInt(4, data.length());
+                //pstmtInsertRevision.setLong(4, textId);
+                pstmtInsertRevision.setString(5, sha1base36(data));
+                executeUpdate(pstmtInsertRevision);
 
-            pstmtInsertContent.setInt(2, data.length());
-            pstmtInsertContent.setString(3, sha1base36(data));
-            pstmtInsertContent.setInt(4, contentModelItem);
-            pstmtInsertContent.setString(5, "tt:" + textId);
+                final String comment = "/* wbeditentity-create:2|en */ " + label + ", " + description;
 
-            contentId++;
-            pstmtInsertContent.setLong(1, contentId);
-            executeUpdate(pstmtInsertContent);
+                pstmtInsertComment.setInt(2, comment.hashCode());
+                pstmtInsertComment.setString(3, comment);
 
-            pstmtInsertSlots.setLong(1, textId);
-            pstmtInsertSlots.setLong(2, contentId);
-            pstmtInsertSlots.setLong(3, textId);
-            executeUpdate(pstmtInsertSlots);
+                commentId++;
+                pstmtInsertComment.setLong(1, commentId);
+                executeUpdate(pstmtInsertComment);
 
-            //ACT
-            recentChangeId++;
-            pstmtInsertRecentChanges.setLong(1, recentChangeId);
-            pstmtInsertRecentChanges.setString(2, timestamp);
-            pstmtInsertRecentChanges.setInt(3, ACTOR);
+                pstmtInsertRevisionComment.setLong(1, textId);
+                pstmtInsertRevisionComment.setLong(2, commentId);
+                executeUpdate(pstmtInsertRevisionComment);
 
-            pstmtInsertRecentChanges.setString(4, itemId);
-            pstmtInsertRecentChanges.setLong(5, commentId);
+                pstmtInsertRevisionActor.setLong(1, textId);
+                pstmtInsertRevisionActor.setInt(2, ACTOR);
+                pstmtInsertRevisionActor.setString(3, timestamp);
+                pstmtInsertRevisionActor.setLong(4, pageId);
+                executeUpdate(pstmtInsertRevisionActor);
 
-            pstmtInsertRecentChanges.setLong(6, pageId);
-            pstmtInsertRecentChanges.setLong(7, pageId);
+                pstmtInsertContent.setInt(2, data.length());
+                pstmtInsertContent.setString(3, sha1base36(data));
+                pstmtInsertContent.setInt(4, contentModelItem);
+                pstmtInsertContent.setString(5, "tt:" + textId);
 
-            pstmtInsertRecentChanges.setInt(8, data.length());
-            executeUpdate(pstmtInsertRecentChanges);
+                contentId++;
+                pstmtInsertContent.setLong(1, contentId);
+                executeUpdate(pstmtInsertContent);
 
-            pstmtUpdateWbIdCounters.setInt(1, lastQNumber);
-            executeUpdate(pstmtUpdateWbIdCounters);
+                pstmtInsertSlots.setLong(1, textId);
+                pstmtInsertSlots.setLong(2, contentId);
+                pstmtInsertSlots.setLong(3, textId);
+                executeUpdate(pstmtInsertSlots);
 
-            //logger.info("Nouveau Q:"+lastQNumber);
+                //ACT
+                recentChangeId++;
+                pstmtInsertRecentChanges.setLong(1, recentChangeId);
+                pstmtInsertRecentChanges.setString(2, timestamp);
+                pstmtInsertRecentChanges.setInt(3, ACTOR);
+
+                pstmtInsertRecentChanges.setString(4, itemId);
+                pstmtInsertRecentChanges.setLong(5, commentId);
+
+                pstmtInsertRecentChanges.setLong(6, pageId);
+                pstmtInsertRecentChanges.setLong(7, pageId);
+
+                pstmtInsertRecentChanges.setInt(8, data.length());
+                executeUpdate(pstmtInsertRecentChanges);
+
+                pstmtUpdateWbIdCounters.setInt(1, lastQNumber);
+                executeUpdate(pstmtUpdateWbIdCounters);
+
+                //logger.info("Nouveau Q:"+lastQNumber);
+            } catch (Exception e) {
+                logger.error("Erreur titre déjà présent ? : " + label + " exception:" + e.getMessage());
+            }
         }
-        catch (Exception e){
-            logger.error("Erreur titre déjà présent ? : "+label+" exception:"+e.getMessage());
-        }
-        return itemId;
     }
 
     private void insert_wbt_table(String texte, String type) throws Exception{
 
+        final Statement stmt = connection.createStatement();
+
+        long wbx_id = 0;
+        pstmtSelect_wbt_text.setString(1, texte);
+        ResultSet rs = pstmtSelect_wbt_text.executeQuery();
+        if (rs.next()) {
+            wbx_id = rs.getLong(1);
+        }
+        else {
+            pstmtInsert_wbt_text.setString(1, texte);
+            pstmtInsert_wbt_text.executeUpdate();
+            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
+            if (rs.next()) {
+                wbx_id = rs.getLong(1);
+            }
+        }
+        rs.close();
+
+        long wbxl_id = 0;
+        pstmtSelect_wbt_text_in_lang.setString(1, LANG);
+        pstmtSelect_wbt_text_in_lang.setString(2, texte);
+        rs = pstmtSelect_wbt_text_in_lang.executeQuery();
+        if (rs.next()) {
+            wbxl_id = rs.getLong(1);
+        }
+        else {
+            pstmtInsert_wbt_text_in_lang.setString(1, LANG);
+            pstmtInsert_wbt_text_in_lang.setLong(2, wbx_id);
+            pstmtInsert_wbt_text_in_lang.executeUpdate();
+            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
+            if (rs.next()) {
+                wbxl_id = rs.getLong(1);
+            }
+        }
+        rs.close();
+
+        long wbtl_id = 0;
+        pstmtSelect_wbt_term_in_lang.setString(1, wbt_type.get(type));
+        pstmtSelect_wbt_term_in_lang.setString(2, LANG);
+        pstmtSelect_wbt_term_in_lang.setString(3, texte);
+        rs = pstmtSelect_wbt_term_in_lang.executeQuery();
+        if (rs.next()) {
+            wbtl_id = rs.getLong(1);
+        }
+        else {
+            pstmtInsert_wbt_term_in_lang.setString(1, wbt_type.get(type));
+            pstmtInsert_wbt_term_in_lang.setLong(2, wbxl_id);
+            pstmtInsert_wbt_term_in_lang.executeUpdate();
+            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
+            if (rs.next()) {
+                wbtl_id = rs.getLong(1);
+            }
+        }
+        rs.close();
+
+
         //logger.info("insert_wbt_table : "+texte + " "+type+" wbxId:"+wbxId+" wbxlId:"+wbxlId+" wbtlId:"+wbtlId+" wbt_type:"+wbt_type.get(type)+" lastQNumber:"+lastQNumber);
         //Si le texte est un label, il peut y avoir une exception si ce label est déjà présent (pas de doublon autorisé)
-        wbxId++;
-        pstmtInsert_wbt_text.setLong(1, wbxId);
-        pstmtInsert_wbt_text.setString(2, texte);
-        executeUpdate(pstmtInsert_wbt_text);
-
-        wbxlId++;
-        pstmtInsert_wbt_text_in_lang.setLong(1, wbxlId);
-        pstmtInsert_wbt_text_in_lang.setString(2, LANG);
-        pstmtInsert_wbt_text_in_lang.setLong(3, wbxId);
-        executeUpdate(pstmtInsert_wbt_text_in_lang);
-
-        wbtlId++;
-        pstmtInsert_wbt_term_in_lang.setLong(1, wbtlId);
-        pstmtInsert_wbt_term_in_lang.setString(2, wbt_type.get(type));
-        pstmtInsert_wbt_term_in_lang.setLong(3, wbxlId);
-        executeUpdate(pstmtInsert_wbt_term_in_lang);
-
-        wbitId++;
-        pstmtInsert_wbt_item_terms.setLong(1, wbitId);
-        pstmtInsert_wbt_item_terms.setInt(2, lastQNumber);
-        pstmtInsert_wbt_item_terms.setLong(3, wbtlId);
+        pstmtInsert_wbt_item_terms.setInt(1, lastQNumber);
+        pstmtInsert_wbt_item_terms.setLong(2, wbtl_id);
         executeUpdate(pstmtInsert_wbt_item_terms);
     }
 

@@ -49,6 +49,8 @@ public class BatchConfiguration {
     private String mysqlLogin;
     @Value("${mysql.pwd}")
     private String mysqlPwd;
+    @Value("${chunk.size:10}")
+    private int chunkSize;
     @Autowired
     private BatchArguments batchArguments;
     @Autowired
@@ -112,11 +114,12 @@ public class BatchConfiguration {
 
     /**
      * Etape de création des données
+     * (1 chunk équivaux à 5000 notices)
      */
     @Bean
     public Step stepData (JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
         return new StepBuilder("stepData", jobRepository)
-                .<File, List<ItemDocument>> chunk(10, transactionManager)
+                .<File, List<ItemDocument>> chunk(chunkSize, transactionManager)
                 .reader(this.reader())
                 .processor(this.processor())
                 .writer(this.writer())

@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>fr.fne</groupId>
 	<artifactId>batch</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<name>batch</name>
 	<description>Batch java pour tester le chargement en masse de données dans WikiBase</description>
 

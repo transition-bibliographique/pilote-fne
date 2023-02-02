@@ -118,7 +118,7 @@ public class ModificationParSQL {
 
                         recordNb++;
 
-                        di.createItem(theItem.toString());
+                        di.updateItem(theItem.toString());
                     }
                 }
                 //di.commit();

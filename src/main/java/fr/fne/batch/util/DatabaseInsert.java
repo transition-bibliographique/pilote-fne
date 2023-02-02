@@ -245,7 +245,29 @@ public class DatabaseInsert {
     }
 
 
+    public void updateItem(String jsonString) throws SQLException {
+        //logger.info("JSON : "+jsonString);
+        final JSONObject json = new JSONObject(jsonString);
+
+        if (json.optString("id") != null) {
+            logger.info("Id trouvé : " + json.optString("id"));
+        }
+
+        insertItem(jsonString);
+    }
+
     public void createItem(String jsonString) throws SQLException {
+        //logger.info("JSON : "+jsonString);
+        final JSONObject json = new JSONObject(jsonString);
+
+        if (json.optString("id") != null) {
+            logger.info("Id trouvé : " + json.optString("id"));
+        }
+
+        insertItem(jsonString);
+    }
+
+    private void insertItem(String jsonString) throws SQLException {
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 
@@ -280,7 +302,7 @@ public class DatabaseInsert {
         // /!\ Un label + description ne peuvent pas être insérés 2 x . Ce test n'est pas fait par ce programme /!\
 
         //Le label et la description doivent être différents : ok avec le test ci-dessous
-        //Ajout test sur id présent pour le cas d'une modification
+        //Ajout d'un test sur id présent pour ne pas traiter une modification ici : il faut pour cela utiliser updateItem
         if (!label.equals(description) && json.optString("id")==null) {
 
             lastQNumber++;

@@ -43,6 +43,7 @@ public class DatabaseInsert {
     private PreparedStatement pstmtSelectLastItemId;
     private PreparedStatement pstmtSelectItem;
     private PreparedStatement pstmtInsertRecentChanges;
+    private PreparedStatement pstmtInsertOldRecentChanges;
 
     //ACT
     private PreparedStatement pstmtSelect_wbt_text;
@@ -55,12 +56,17 @@ public class DatabaseInsert {
     private Map<String, String> wbt_type = new HashMap<>();
 
     private int lastQNumber = 0;
+    private  String itemId;
     private long textId = 0;
     private long pageId = 0;
+    private long revId = 0;
     private long commentId = 0;
     private long contentId = 0;
     private int contentModelItem;
     private long recentChangeId = 0;
+    private String comment = "/* wbeditentity-create:2|fr */ ";
+    private long oldRevId = 0;
+    private long oldDataLength = 0;
 
     public DatabaseInsert(Connection con) throws SQLException, IOException {
         this.connection = con;
@@ -127,33 +133,32 @@ public class DatabaseInsert {
     private void prepareDatabaseConnection() throws SQLException {
 
         pstmtInsertText = connection.prepareStatement("INSERT INTO text VALUES(?,?,'utf-8')");
-        pstmtInsertPage = connection.prepareStatement("INSERT INTO page VALUES(?,120,?,'',0,0,rand(1),?,?,?,?,'wikibase-item',NULL)");
+        pstmtInsertPage = connection.prepareStatement("REPLACE INTO page VALUES(?,120,?,'',0,0,rand(1),?,?,?,?,'wikibase-item',NULL)");
         pstmtInsertComment = connection.prepareStatement("INSERT INTO comment VALUES(?,?,?,NULL)");
-        pstmtInsertContent = connection.prepareStatement("INSERT INTO content VALUES( ? ,?,?, ?, ?)");
+        pstmtInsertContent = connection.prepareStatement("INSERT INTO content VALUES(?,?,?,?,?)");
 
+        pstmtInsertRevision = connection.prepareStatement("INSERT INTO revision VALUES(NULL,?,0,0,?,0,0,?,?,?)");
         pstmtInsertRevisionComment = connection.prepareStatement("INSERT INTO revision_comment_temp VALUES (?,?)");
-        pstmtInsertRevisionActor = connection.prepareStatement("INSERT INTO revision_actor_temp VALUES( ?, ?, ?,  ?)");
-        //ACT
-        pstmtInsertRevision = connection.prepareStatement("INSERT INTO revision VALUES(?,?,0,0,?,0,0,?,0,?)");
+        pstmtInsertRevisionActor = connection.prepareStatement("INSERT INTO revision_actor_temp VALUES(?,?,?,?)");
 
         pstmtInsertSlots = connection.prepareStatement("INSERT INTO slots VALUES( ?, 1, ?, ?)");
         pstmtUpdateWbIdCounters = connection.prepareStatement("UPDATE wb_id_counters SET id_value=? WHERE id_type='wikibase-item'");
         pstmtSelectLastItemId = connection.prepareStatement("SELECT id_value  AS next_id from wb_id_counters where id_type = 'wikibase-item'");
         pstmtSelectItem = connection.prepareStatement("SELECT * FROM page WHERE page_namespace=120 AND page_title=?");
-        //ACT
-        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (?,?,?,'120',?,?,0,0,0,?,?,0,1,'mw.new',2,'172.18.0.1',0,?,0,0,NULL,'','')");
 
-        //ACT
+        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (NULL,?,?,'120',?,?,0,0,0,?,?,?,?,?,2,'172.18.0.1',?,?,0,0,NULL,'','')");
+        pstmtInsertOldRecentChanges = connection.prepareStatement("SELECT rc_new_len FROM recentchanges WHERE rc_id <= ? ORDER BY rc_id DESC LIMIT 1"); //?? https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/dbconnection.py#L312
+
         pstmtSelect_wbt_text  = connection.prepareStatement("SELECT wbx_id FROM wbt_text WHERE wbx_text=?");
         pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(NULL,?)");
 
         pstmtSelect_wbt_text_in_lang = connection.prepareStatement("SELECT wbxl_id FROM wbt_text_in_lang, wbt_text " +
-                                                                        "WHERE wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
+                "WHERE wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
         pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(NULL,?,?)");
 
         pstmtSelect_wbt_term_in_lang = connection.prepareStatement("SELECT wbtl_id FROM wbt_term_in_lang, wbt_text_in_lang, " +
-                                                                        "wbt_text WHERE wbtl_text_in_lang_id=wbxl_id AND wbtl_type_id=? " +
-                                                                        "AND wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
+                "wbt_text WHERE wbtl_text_in_lang_id=wbxl_id AND wbtl_type_id=? " +
+                "AND wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
         pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(NULL,?,?)");
 
         pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(NULL,?,?)");
@@ -205,6 +210,12 @@ public class DatabaseInsert {
         }
         rs.close();
 
+        rs = stmt.executeQuery("SELECT max(rev_id) FROM revision");
+        if (rs.next()) {
+            revId = rs.getLong(1);
+        }
+        rs.close();
+
         //ACT : contient label, description  et alias
         //Ajout de ces 2 lignes si pas d'Item/Q avec description et/ou alias créé au départ
         //connection.createStatement().execute("INSERT INTO wbt_type (wby_name) VALUES('description')");
@@ -246,37 +257,62 @@ public class DatabaseInsert {
 
 
     public void updateItem(String jsonString) throws SQLException {
+        //https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/dbconnection.py
+
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 
-        if (json.optString("id") != null) {
+        if (json.optString("id") != "") {
             logger.info("Id trouvé : " + json.optString("id"));
+            itemId = json.optString("id");
         }
 
-        insertItem(jsonString);
+        //"""SELECT page_id, page_latest FROM page WHERE page_title=?
+        //[page_id, rev_id] = self.get_page_latest(page_title=page_title, namespace=namespace)
+        pstmtSelectItem.setString(1, json.optString("id"));
+        ResultSet rs = pstmtSelectItem.executeQuery();
+        if (rs.next()) {
+            pageId = rs.getLong("page_id");
+            oldRevId = rs.getLong("page_latest");
+        }
+        rs.close();
+
+        pstmtInsertOldRecentChanges.setLong(1, pageId);
+        rs = pstmtInsertOldRecentChanges.executeQuery();
+        if (rs.next()) {
+            oldDataLength = rs.getLong("rc_new_len");
+        }
+        rs.close();
+
+        revId++;
+        comment = "/* wbeditentity-edit:2|fr */ " ;
+
+        insertItem(jsonString, false);
     }
 
     public void createItem(String jsonString) throws SQLException {
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 
-        if (json.optString("id") != null) {
+        if (json.optString("id") != "") {
             logger.info("Id trouvé : " + json.optString("id"));
         }
 
-        insertItem(jsonString);
+        lastQNumber++;
+        itemId = "Q" + lastQNumber;
+        pageId++;
+        revId++;
+        comment = "/* wbeditentity-create:2|fr */ " ;
+
+        insertItem(jsonString, true);
     }
 
-    private void insertItem(String jsonString) throws SQLException {
+    private void insertItem(String jsonString, boolean create) throws SQLException {
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 
         //Moins une heure : pour que le wdqs-updater ne traite pas ces insertions
         final String timestamp = LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_DATE_TIME).replaceAll("[T:-]", "").substring(0, 14);
-
-        if (json.optString("id") != null) {
-            logger.info("CreateItem en modification ! Id trouvé : " + json.optString("id"));
-        }
 
         //Cas de caractères UTF-8 qui, passés en VARBINARY, font plus de 255 :
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
@@ -302,12 +338,7 @@ public class DatabaseInsert {
         // /!\ Un label + description ne peuvent pas être insérés 2 x . Ce test n'est pas fait par ce programme /!\
 
         //Le label et la description doivent être différents : ok avec le test ci-dessous
-        //Ajout d'un test sur id présent pour ne pas traiter une modification ici : il faut pour cela utiliser updateItem
-        if (!label.equals(description) && json.optString("id")==null) {
-
-            lastQNumber++;
-
-            final String itemId = "Q" + lastQNumber;
+        if (!label.equals(description)) {
 
             // Does the specified item already have an ID?
             if (!json.has("id")) {
@@ -324,6 +355,7 @@ public class DatabaseInsert {
                     }
                 }
             }
+
 
 
             try {
@@ -351,38 +383,41 @@ public class DatabaseInsert {
                 pstmtInsertText.setString(2, data);
                 executeUpdate(pstmtInsertText);
 
+                pstmtInsertPage.setLong(1, pageId);
                 pstmtInsertPage.setString(2, itemId);
                 pstmtInsertPage.setString(3, timestamp);
                 pstmtInsertPage.setString(4, timestamp);
-                pstmtInsertPage.setLong(5, textId);
+                pstmtInsertPage.setLong(5, revId);//textId OK?
                 pstmtInsertPage.setInt(6, data.length());
 
-                pageId++;
-                pstmtInsertPage.setLong(1, pageId);
                 executeUpdate(pstmtInsertPage);
 
                 pstmtInsertRevision.setLong(1, pageId);
-                pstmtInsertRevision.setLong(2, pageId);
-                pstmtInsertRevision.setString(3, timestamp);
-                pstmtInsertRevision.setInt(4, data.length());
-                //pstmtInsertRevision.setLong(4, textId);
+                pstmtInsertRevision.setString(2, timestamp);
+                pstmtInsertRevision.setInt(3, data.length());
+                if (create) {
+                    pstmtInsertRevision.setLong(4, 0);
+                }
+                else {
+                    pstmtInsertRevision.setLong(4, revId);
+                }
                 pstmtInsertRevision.setString(5, sha1base36(data));
                 executeUpdate(pstmtInsertRevision);
 
-                final String comment = "/* wbeditentity-create:2|en */ " + label + ", " + description;
+                String commentValue = comment + label + ", " + description;
 
-                pstmtInsertComment.setInt(2, comment.hashCode());
-                pstmtInsertComment.setString(3, comment);
+                pstmtInsertComment.setInt(2, commentValue.hashCode());
+                pstmtInsertComment.setString(3, commentValue);
 
                 commentId++;
                 pstmtInsertComment.setLong(1, commentId);
                 executeUpdate(pstmtInsertComment);
 
-                pstmtInsertRevisionComment.setLong(1, textId);
+                pstmtInsertRevisionComment.setLong(1, revId);
                 pstmtInsertRevisionComment.setLong(2, commentId);
                 executeUpdate(pstmtInsertRevisionComment);
 
-                pstmtInsertRevisionActor.setLong(1, textId);
+                pstmtInsertRevisionActor.setLong(1, revId);
                 pstmtInsertRevisionActor.setInt(2, ACTOR);
                 pstmtInsertRevisionActor.setString(3, timestamp);
                 pstmtInsertRevisionActor.setLong(4, pageId);
@@ -403,22 +438,37 @@ public class DatabaseInsert {
                 executeUpdate(pstmtInsertSlots);
 
                 //ACT
-                recentChangeId++;
-                pstmtInsertRecentChanges.setLong(1, recentChangeId);
-                pstmtInsertRecentChanges.setString(2, timestamp);
-                pstmtInsertRecentChanges.setInt(3, ACTOR);
+                //recentChangeId++;
+                //pstmtInsertRecentChanges.setLong(1, recentChangeId);
+                pstmtInsertRecentChanges.setString(1, timestamp);
+                pstmtInsertRecentChanges.setInt(2, ACTOR);
 
-                pstmtInsertRecentChanges.setString(4, itemId);
-                pstmtInsertRecentChanges.setLong(5, commentId);
+                pstmtInsertRecentChanges.setString(3, itemId);
+                pstmtInsertRecentChanges.setLong(4, commentId);
 
-                pstmtInsertRecentChanges.setLong(6, pageId);
-                pstmtInsertRecentChanges.setLong(7, pageId);
+                pstmtInsertRecentChanges.setLong(5, pageId);
+                pstmtInsertRecentChanges.setLong(6, revId);
 
-                pstmtInsertRecentChanges.setInt(8, data.length());
+                pstmtInsertRecentChanges.setLong(7, oldRevId); //0 si create
+
+                if (create) {
+                    pstmtInsertRecentChanges.setLong(8, 1);
+                    pstmtInsertRecentChanges.setString(9, "mw.new");
+                }
+                else {
+                    pstmtInsertRecentChanges.setLong(8, 0);
+                    pstmtInsertRecentChanges.setString(9, "mw.edit");
+                }
+
+                pstmtInsertRecentChanges.setLong(10, oldDataLength); //0 si create
+
+                pstmtInsertRecentChanges.setInt(11, data.length());
                 executeUpdate(pstmtInsertRecentChanges);
 
-                pstmtUpdateWbIdCounters.setInt(1, lastQNumber);
-                executeUpdate(pstmtUpdateWbIdCounters);
+                if (create) {
+                    pstmtUpdateWbIdCounters.setInt(1, lastQNumber);
+                    executeUpdate(pstmtUpdateWbIdCounters);
+                }
 
                 //logger.info("Nouveau Q:"+lastQNumber);
             } catch (Exception e) {

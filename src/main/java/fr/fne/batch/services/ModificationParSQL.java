@@ -121,7 +121,7 @@ public class ModificationParSQL {
                         di.updateItem(theItem.toString());
                     }
                 }
-                //di.commit();
+                di.commit();
 
                 // logger.info("to continue :"+json.optJSONObject("continue").optString("apcontinue"));
                 if (json.optJSONObject("continue") != null) {
@@ -130,7 +130,7 @@ public class ModificationParSQL {
                     lastItem = null;
                 }
             }
-            //di.commit();
+            di.commit();
 
             // Ensuite, il faut indexer dans Elastic Search et dans WDQS (SPARQL),
             // avec les scripts : (scriptsIndexation) indexationES et indexationSPARQL (.ps1 ou .sh) du dépôt pilote-fne-docker

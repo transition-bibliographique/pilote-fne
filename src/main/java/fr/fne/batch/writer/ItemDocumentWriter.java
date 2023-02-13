@@ -65,7 +65,8 @@ public class ItemDocumentWriter implements ItemWriter<List<ItemDocument>> {
     public void afterStep(StepExecution stepExecution)
     {
         Date end = new Date();
-        int diff = end.getSeconds() - start.getSeconds();
+        long diff = end.getTime() - start.getTime();
+        diff = diff / 1000; //en secondes
 
         int nbItem = this.executionContext.getInt( "nbItem", 0 );
 

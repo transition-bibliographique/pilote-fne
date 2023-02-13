@@ -18,6 +18,7 @@ import org.wikidata.wdtk.datamodel.interfaces.PropertyIdValue;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -36,11 +37,11 @@ public class Format {
         BufferedReader reader = null;
                         
         //List<String> lines = FileUtils.readLines(file, "UTF-8");
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
 		try {
 			InputStream inputStream = new ClassPathResource("ProprietesWB.txt").getInputStream();
 			
-			reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+			reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
 			String line = null;
 			while ((line = reader.readLine()) != null) {
@@ -57,7 +58,7 @@ public class Format {
 
         while (line.hasNext()){
 
-            String prop = (String)line.next();
+            String prop = line.next();
             //Structure du fichier : Label|datatype
             String[] props = prop.split("\\|");
             //logger.info("props.len:"+props[0]+" "+props[1]);
@@ -82,7 +83,6 @@ public class Format {
                                             withLabel(label, "fr").build();
 
             Map<String, String> params = new LinkedHashMap<>();
-            params = new LinkedHashMap<>();
             params.put("action", "wbeditentity");
             params.put("new", "property");
             params.put("token", csrftoken);
@@ -95,11 +95,10 @@ public class Format {
             return json.getJSONObject("entity").optString("id");
     }
 
-
     /*
     * Retourne une map avec le label et l'ID wikibase (Pxx)
      */
-    public Map get() throws Exception {
+    public Map<String, String> get() throws Exception {
         // Getting namespace Property id
         JSONObject json = util.getJson("?action=query&format=json&meta=siteinfo&siprop=namespaces");
         Iterator<String> it = json.optJSONObject("query").optJSONObject("namespaces").keys();
@@ -165,7 +164,6 @@ public class Format {
                 .build();
 
         Map<String, String> params = new LinkedHashMap<>();
-        params = new LinkedHashMap<>();
         params.put("action", "wbeditentity");
         params.put("new", "item");
         params.put("token", csrftoken);

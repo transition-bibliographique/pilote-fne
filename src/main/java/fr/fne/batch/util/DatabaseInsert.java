@@ -1,6 +1,5 @@
 package fr.fne.batch.util;
 
-import fr.fne.batch.services.ChargementParSQL;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,7 +25,8 @@ import java.util.UUID;
  */
 public class DatabaseInsert {
 
-    private final Logger logger = LoggerFactory.getLogger(ChargementParSQL.class);
+    private final Logger logger = LoggerFactory.getLogger(DatabaseInsert.class);
+
     private final static String LANG = "fr"; //Lang des insertions
     private final static int ACTOR = 1;
     private final Connection connection;
@@ -79,6 +79,7 @@ public class DatabaseInsert {
 
     public void afterPropertiesSet() throws SQLException {
         prepareDatabaseConnection();
+        startTransaction();
     }
 
     public void destroy() throws Exception {
@@ -309,8 +310,9 @@ public class DatabaseInsert {
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
         byte[] byteArrray = label.getBytes();
 
-        if (byteArrray.length > 254) {
-            label = new String(Arrays.copyOfRange(byteArrray, 0, 254));
+        //Si substring jusqu'à 254, problème dans certains cas...
+        if (byteArrray.length > 253) {
+            label = new String(Arrays.copyOfRange(byteArrray, 0, 253));
         }
 
         String description = null;

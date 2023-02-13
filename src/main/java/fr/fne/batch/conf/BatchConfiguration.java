@@ -3,6 +3,7 @@ package fr.fne.batch.conf;
 import fr.fne.batch.processor.CollectionItemProcessor;
 import fr.fne.batch.tasklet.FormatTasklet;
 import fr.fne.batch.util.ApiWB;
+import fr.fne.batch.util.DatabaseInsert;
 import fr.fne.batch.util.Format;
 import fr.fne.batch.writer.ItemDocumentWriter;
 import org.slf4j.Logger;
@@ -26,6 +27,8 @@ import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.Path;
@@ -34,6 +37,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -58,9 +62,28 @@ public class BatchConfiguration {
     @Autowired
     private Format format;
     private  Map<String, String> props;
+    @Value("${wikibase.url}")
+    private String urlWikiBase;
 
     @Bean
     public ItemReader<File> reader () throws Exception {
+
+        int responseCode = -1;
+
+        // Attente que urlWikiBase soit disponible
+        while (responseCode!=200){
+            TimeUnit.SECONDS.sleep(5);
+            try {
+                URL url = new URL(urlWikiBase);
+                HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+                responseCode = huc.getResponseCode();
+            }
+            catch (Exception e){
+                logger.info("Tentative de connexion à "+urlWikiBase+" erreur : "+e.getMessage());
+            }
+
+            logger.info("responseCode : "+ responseCode);
+        }
 
         props = format.get();
         //Si pas de propriétés, alors création (pr éviter d'appeler 2x fois le BatchApplication : creationProprietes puis chargement)
@@ -94,7 +117,8 @@ public class BatchConfiguration {
     @Bean
     public ItemWriter writer() throws SQLException, IOException {
         Connection connection = DriverManager.getConnection(mysqlUrl, mysqlLogin, mysqlPwd);
-        return new ItemDocumentWriter(connection);
+        DatabaseInsert di = new DatabaseInsert(connection);
+        return new ItemDocumentWriter(di);
     }
 
     @Bean

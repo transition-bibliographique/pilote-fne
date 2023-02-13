@@ -37,8 +37,8 @@ public class DtoAutoriteToItem {
      * @param proprietes
      * @return
      */
-    public ItemDocument unmarshallerNotice(Record r, Map<String,String> proprietes) {
-
+    public ItemDocument unmarshallerNotice(Record r, Map<String,String> proprietes)
+    {
         props = proprietes;
 
         ItemDocumentBuilder itemDocumentBuilder = ItemDocumentBuilder.forItemId(ItemIdValue.NULL);
@@ -57,6 +57,123 @@ public class DtoAutoriteToItem {
             String label = "";
             //001
             String ppn = "";
+            //<valeur de zone 010 $a>
+            //<valeur de zone 003>
+            //<valeur de zone 033 $a>
+            String description = "";
+
+            //String alias = "";
+            //ArrayList<String> listeAlias = new ArrayList<>();
+
+            //construction label
+            int posTranslit = -1;
+            int pos200 = 0;
+            for (Datafield d : r.getDatafieldList()) {
+                if (d.getTag().equalsIgnoreCase("200")) {
+                    pos200++;
+                    for (Subfield s : d.getSubfieldList()) {
+                        if (s.getCode().equalsIgnoreCase("7") &&
+                                s.getValue().length() > 5 &&
+                                s.getValue().substring(4, 6).equalsIgnoreCase("ba")) {
+                            posTranslit=pos200;
+                        }
+                    }
+                }
+            }
+
+            pos200 = 0;
+            for (Datafield d : r.getDatafieldList()) {
+                if (d.getTag().equalsIgnoreCase("200")) {
+                    pos200++;
+                    if ((posTranslit!=-1 && posTranslit==pos200) || posTranslit==-1) {
+                        for (Subfield s : d.getSubfieldList()) {
+                            switch (s.getCode().toLowerCase()) {
+                                case "a": label += s.getValue(); break;
+                                case "b" : label += ", " + s.getValue(); break;
+                                case "d" : label += " " + s.getValue(); break;
+                                case "f" : label += ", " + s.getValue(); break;
+                            }
+                        }
+                    }
+                    /*else {
+                        alias = "";
+                        for (Subfield s : d.getSubfieldList()) {
+                            switch (s.getCode().toLowerCase()) {
+                                case "a": alias += s.getValue(); break;
+                                case "b": alias += ", " + s.getValue(); break;
+                                case "d": alias += " " + s.getValue(); break;
+                                case "f": alias += ", " + s.getValue(); break;
+                            }
+                        }
+                        listeAlias.add(alias);
+                    }*/
+                }
+            }
+            // construction description
+            String isni = r.getDatafieldList().stream()
+                    .filter(z -> z.getTag().equals("010"))
+                    .flatMap(sz -> sz.getSubfieldList().stream())
+                    .filter(sz -> sz.getCode().equals("a"))
+                    .map(sz -> sz.getValue())
+                    .findFirst()
+                    .orElse("");
+
+            String idref = r.getControlfieldList().stream()
+                    .filter(c -> c.getTag().equals("003"))
+                    .map(c -> c.getValue())
+                    .findFirst()
+                    .orElse("");
+
+            String ark = r.getDatafieldList().stream()
+                    .filter(z -> z.getTag().equals("033"))
+                    .filter(z -> z.getSubfieldList().stream().anyMatch(sz -> sz.getCode().equals("2") &&  sz.getValue().equalsIgnoreCase("BNF")))
+                    .flatMap(sz -> sz.getSubfieldList().stream())
+                    .filter(sz -> sz.getCode().equals("a"))
+                    .map(sz -> sz.getValue())
+                    .findFirst()
+                    .orElse("");
+
+            if (!isni.isEmpty()) {
+                description += isni ;
+            }
+            if (!idref.isEmpty()) {
+                if (!description.isEmpty()){
+                    description += " - ";
+                }
+                description += idref ;
+            }
+            if (!ark.isEmpty()) {
+                if (!description.isEmpty()){
+                    description += " - ";
+                }
+                description += ark ;
+            }
+            itemDocumentBuilder = itemDocumentBuilder.withDescription(description, "fr");
+
+            //construction aliases
+            // Nom 	<valeur de 700 $a>
+            // Prénom 	<valeur de 700 $b>
+            // Langue de l'interface	par défaut fr
+
+            /*for (Datafield d : r.getDatafieldList()) {
+                if (d.getTag().equalsIgnoreCase("400") || d.getTag().equalsIgnoreCase("700")) {
+                    alias = "";
+                    for (Subfield s : d.getSubfieldList()) {
+                       switch (s.getCode().toLowerCase()) {
+                           case "a": alias += s.getValue(); break;
+                           case "b" : alias += ", " + s.getValue(); break;
+                           case "d" : alias += " " + s.getValue(); break;
+                           case "f" : alias += ", " + s.getValue(); break;
+                        }
+                    }
+                    listeAlias.add(alias);
+                }
+            }
+
+            List<String> aliasNoDoublon = listeAlias.stream().distinct().collect(Collectors.toList());
+            for (String al : aliasNoDoublon){
+                itemDocumentBuilder = itemDocumentBuilder.withAlias(al, "fr");
+            }*/
 
             //Leader :
             itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Zoneleader", r.getLeader(), "leader", objectMapper.writeValueAsString(r.getLeader()));
@@ -68,7 +185,6 @@ public class DtoAutoriteToItem {
                 }
 
                 if (c.getTag().equalsIgnoreCase("003")){
-                    itemDocumentBuilder = itemDocumentBuilder.withDescription(c.getValue(), "fr");
                     itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"URL pérenne", c.getValue(), "003", objectMapper.writeValueAsString(c));
                 }
 
@@ -109,15 +225,10 @@ public class DtoAutoriteToItem {
                 if (d.getTag().equalsIgnoreCase("200")){
                     for (Subfield s : d.getSubfieldList()){
                         if (s.getCode().equalsIgnoreCase("a")){
-                            label += s.getValue();
                             itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Nom", s.getValue(), "200", objectMapper.writeValueAsString(d));
                         }
                         else if (s.getCode().equalsIgnoreCase("b")){
-                            label += ", " + s.getValue();
                             itemDocumentBuilder = this.addStmtString(itemDocumentBuilder,"Prénom", s.getValue(), "200", objectMapper.writeValueAsString(d));
-                        }
-                        else if (s.getCode().equalsIgnoreCase("f")){
-                            label += ", " + s.getValue();
                         }
                     }
                 }

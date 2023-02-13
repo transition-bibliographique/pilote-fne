@@ -30,4 +30,4 @@ RUN mvn --batch-mode \
 FROM openjdk:17 as pilote-fne
 COPY --from=build-image /build/target/*.jar /app/pilote-fne.jar
 #ENTRYPOINT exec java $JAVA_OPTS -jar /app/pilote-fne.jar -s
-CMD ["java", $JAVA_OPTS, "-jar", "/app/pilote-fne.jar", "SQL"]
+CMD ["java", "-Xmx2G", "-jar", "/app/pilote-fne.jar", "SQL"]

@@ -6,10 +6,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -26,7 +23,6 @@ import java.util.UUID;
 public class DatabaseInsert {
 
     private final Logger logger = LoggerFactory.getLogger(DatabaseInsert.class);
-
     private final static String LANG = "fr"; //Lang des insertions
     private final static int ACTOR = 1;
     private final Connection connection;
@@ -46,26 +42,30 @@ public class DatabaseInsert {
     private PreparedStatement pstmtSelectLastItemId;
     private PreparedStatement pstmtSelectItem;
     private PreparedStatement pstmtInsertRecentChanges;
+    private PreparedStatement pstmtInsertOldRecentChanges;
 
     //ACT
+    private PreparedStatement pstmtSelect_wbt_text;
     private PreparedStatement pstmtInsert_wbt_text;
+    private PreparedStatement pstmtSelect_wbt_text_in_lang;
     private PreparedStatement pstmtInsert_wbt_text_in_lang;
+    private PreparedStatement pstmtSelect_wbt_term_in_lang;
     private PreparedStatement pstmtInsert_wbt_term_in_lang;
     private PreparedStatement pstmtInsert_wbt_item_terms;
-
-    private long wbxId = 0;
-    private long wbxlId = 0;
-    private long wbtlId = 0;
-    private long wbitId = 0;
     private Map<String, String> wbt_type = new HashMap<>();
 
     private int lastQNumber = 0;
+    private  String itemId;
     private long textId = 0;
     private long pageId = 0;
+    private long revId = 0;
     private long commentId = 0;
     private long contentId = 0;
     private int contentModelItem;
     private long recentChangeId = 0;
+    private String comment = "/* wbeditentity-create:2|fr */ ";
+    private long oldRevId = 0;
+    private long oldDataLength = 0;
 
     public DatabaseInsert(Connection con) throws SQLException, IOException {
         this.connection = con;
@@ -79,7 +79,6 @@ public class DatabaseInsert {
 
     public void afterPropertiesSet() throws SQLException {
         prepareDatabaseConnection();
-        startTransaction();
     }
 
     public void destroy() throws Exception {
@@ -97,23 +96,15 @@ public class DatabaseInsert {
         pstmtInsertRecentChanges.close();
 
         //ACT
+        pstmtSelect_wbt_text.close();
         pstmtInsert_wbt_text.close();
+        pstmtSelect_wbt_text_in_lang.close();
         pstmtInsert_wbt_text_in_lang.close();
+        pstmtSelect_wbt_term_in_lang.close();
         pstmtInsert_wbt_term_in_lang.close();
         pstmtInsert_wbt_item_terms.close();
 
         connection.close();
-    }
-
-    private void work(InputStream stream) throws SQLException, IOException {
-        final BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-        String line = in.readLine();
-        while (line != null) {
-            createItem(line);
-            line = in.readLine();
-        }
-
-        in.close();
     }
 
     public void startTransaction() throws SQLException {
@@ -121,7 +112,6 @@ public class DatabaseInsert {
     }
 
     public void commit() throws SQLException {
-
         //Version avec executeBatch()
         pstmtInsertText.executeBatch();
         pstmtInsertPage.executeBatch();
@@ -133,9 +123,6 @@ public class DatabaseInsert {
         pstmtInsertSlots.executeBatch();
         pstmtInsertRecentChanges.executeBatch();
         pstmtUpdateWbIdCounters.executeBatch();
-        pstmtInsert_wbt_text.executeBatch();
-        pstmtInsert_wbt_text_in_lang.executeBatch();
-        pstmtInsert_wbt_term_in_lang.executeBatch();
         pstmtInsert_wbt_item_terms.executeBatch();
         //A enlever si pas executeBatch()
 
@@ -145,26 +132,35 @@ public class DatabaseInsert {
     private void prepareDatabaseConnection() throws SQLException {
 
         pstmtInsertText = connection.prepareStatement("INSERT INTO text VALUES(?,?,'utf-8')");
-        pstmtInsertPage = connection.prepareStatement("INSERT INTO page VALUES(?,120,?,'',0,0,rand(1),?,?,?,?,'wikibase-item',NULL)");
+        pstmtInsertPage = connection.prepareStatement("REPLACE INTO page VALUES(?,120,?,'',0,0,rand(1),?,?,?,?,'wikibase-item',NULL)");
         pstmtInsertComment = connection.prepareStatement("INSERT INTO comment VALUES(?,?,?,NULL)");
-        pstmtInsertContent = connection.prepareStatement("INSERT INTO content VALUES( ? ,?,?, ?, ?)");
+        pstmtInsertContent = connection.prepareStatement("INSERT INTO content VALUES(?,?,?,?,?)");
 
+        pstmtInsertRevision = connection.prepareStatement("INSERT INTO revision VALUES(NULL,?,0,0,?,0,0,?,?,?)");
         pstmtInsertRevisionComment = connection.prepareStatement("INSERT INTO revision_comment_temp VALUES (?,?)");
-        pstmtInsertRevisionActor = connection.prepareStatement("INSERT INTO revision_actor_temp VALUES( ?, ?, ?,  ?)");
-        //ACT
-        pstmtInsertRevision = connection.prepareStatement("INSERT INTO revision VALUES(?,?,0,0,?,0,0,?,0,?)");
+        pstmtInsertRevisionActor = connection.prepareStatement("INSERT INTO revision_actor_temp VALUES(?,?,?,?)");
 
         pstmtInsertSlots = connection.prepareStatement("INSERT INTO slots VALUES( ?, 1, ?, ?)");
         pstmtUpdateWbIdCounters = connection.prepareStatement("UPDATE wb_id_counters SET id_value=? WHERE id_type='wikibase-item'");
         pstmtSelectLastItemId = connection.prepareStatement("SELECT id_value  AS next_id from wb_id_counters where id_type = 'wikibase-item'");
         pstmtSelectItem = connection.prepareStatement("SELECT * FROM page WHERE page_namespace=120 AND page_title=?");
 
-        //ACT
-        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (?,?,?,'120',?,?,0,0,0,?,?,0,1,'mw.new',2,'172.18.0.1',0,?,0,0,NULL,'','')");
-        pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(?,?)");
-        pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(?,?,?)");
-        pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(?,?,?)");
-        pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(?,?,?)");
+        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (NULL,?,?,'120',?,?,0,0,0,?,?,?,?,?,2,'172.18.0.1',?,?,0,0,NULL,'','')");
+        pstmtInsertOldRecentChanges = connection.prepareStatement("SELECT rc_new_len FROM recentchanges WHERE rc_id <= ? ORDER BY rc_id DESC LIMIT 1"); //?? https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/dbconnection.py#L312
+
+        pstmtSelect_wbt_text  = connection.prepareStatement("SELECT wbx_id FROM wbt_text WHERE wbx_text=?");
+        pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(NULL,?)");
+
+        pstmtSelect_wbt_text_in_lang = connection.prepareStatement("SELECT wbxl_id FROM wbt_text_in_lang, wbt_text " +
+                "WHERE wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
+        pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(NULL,?,?)");
+
+        pstmtSelect_wbt_term_in_lang = connection.prepareStatement("SELECT wbtl_id FROM wbt_term_in_lang, wbt_text_in_lang, " +
+                "wbt_text WHERE wbtl_text_in_lang_id=wbxl_id AND wbtl_type_id=? " +
+                "AND wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
+        pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(NULL,?,?)");
+
+        pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(NULL,?,?)");
 
 
         //Récupération du dernier Q créé (au départ il y a déjà les 2 Q : Personne et IPP)
@@ -213,27 +209,9 @@ public class DatabaseInsert {
         }
         rs.close();
 
-        rs = stmt.executeQuery("SELECT max(wbx_id) FROM wbt_text");
+        rs = stmt.executeQuery("SELECT max(rev_id) FROM revision");
         if (rs.next()) {
-            wbxId = rs.getLong(1);
-        }
-        rs.close();
-
-        rs = stmt.executeQuery("SELECT max(wbxl_id) FROM wbt_text_in_lang");
-        if (rs.next()) {
-            wbxlId = rs.getLong(1);
-        }
-        rs.close();
-
-        rs = stmt.executeQuery("SELECT max(wbtl_id) FROM wbt_term_in_lang");
-        if (rs.next()) {
-            wbtlId = rs.getLong(1);
-        }
-        rs.close();
-
-        rs = stmt.executeQuery("SELECT max(wbit_id) FROM wbt_item_terms");
-        if (rs.next()) {
-            wbitId = rs.getLong(1);
+            revId = rs.getLong(1);
         }
         rs.close();
 
@@ -252,15 +230,14 @@ public class DatabaseInsert {
         if( rs.next()) {
             contentModelItem = rs.getInt(1);
         } else {
-            rs.close();
             connection.createStatement().execute("INSERT INTO content_models (model_name ) VALUES('wikibase-item')");
             rs = connection.createStatement().executeQuery("SELECT model_id FROM content_models WHERE model_name='wikibase-item'");
             rs.next();
             contentModelItem = rs.getInt(1);
             logger.debug("Created content model for wikibase-item with id "+contentModelItem );
         }
+        rs.close();
         stmt.close();
-
     }
 
     /**
@@ -278,33 +255,63 @@ public class DatabaseInsert {
     }
 
 
-    public String createItem(String jsonString) throws SQLException {
+    public void updateItem(String jsonString) throws SQLException {
+        //https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/dbconnection.py
 
+        //logger.info("JSON : "+jsonString);
+        final JSONObject json = new JSONObject(jsonString);
+
+        if (json.optString("id") != "") {
+            logger.info("Id trouvé : " + json.optString("id"));
+            itemId = json.optString("id");
+        }
+
+        //"""SELECT page_id, page_latest FROM page WHERE page_title=?
+        //[page_id, rev_id] = self.get_page_latest(page_title=page_title, namespace=namespace)
+        pstmtSelectItem.setString(1, json.optString("id"));
+        ResultSet rs = pstmtSelectItem.executeQuery();
+        if (rs.next()) {
+            pageId = rs.getLong("page_id");
+            oldRevId = rs.getLong("page_latest");
+        }
+        rs.close();
+
+        pstmtInsertOldRecentChanges.setLong(1, pageId);
+        rs = pstmtInsertOldRecentChanges.executeQuery();
+        if (rs.next()) {
+            oldDataLength = rs.getLong("rc_new_len");
+        }
+        rs.close();
+
+        revId++;
+        comment = "/* wbeditentity-edit:2|fr */ " ;
+
+        insertItem(jsonString, false);
+    }
+
+    public void createItem(String jsonString) throws SQLException {
+        //logger.info("JSON : "+jsonString);
+        final JSONObject json = new JSONObject(jsonString);
+
+        if (json.optString("id") != "") {
+            logger.info("Id trouvé : " + json.optString("id"));
+        }
+
+        lastQNumber++;
+        itemId = "Q" + lastQNumber;
+        pageId++;
+        revId++;
+        comment = "/* wbeditentity-create:2|fr */ " ;
+
+        insertItem(jsonString, true);
+    }
+
+    private void insertItem(String jsonString, boolean create) throws SQLException {
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 
         //Moins une heure : pour que le wdqs-updater ne traite pas ces insertions
         final String timestamp = LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_DATE_TIME).replaceAll("[T:-]", "").substring(0, 14);
-
-        lastQNumber++;
-
-        final String itemId = "Q" + lastQNumber;
-
-        // Does the specified item already have an ID?
-        if (!json.has("id")) {
-            json.put("id", itemId);
-
-            // All statements also need this ID
-            if( json.has("claims")) {
-                final JSONObject claims = json.getJSONObject("claims");
-                for (String claim : claims.keySet()) {
-                    final JSONArray list = claims.getJSONArray(claim);
-                    for (int i = 0; i < list.length(); i++) {
-                        list.getJSONObject(i).put("id", itemId + "$" + UUID.randomUUID().toString());
-                    }
-                }
-            }
-        }
 
         //Cas de caractères UTF-8 qui, passés en VARBINARY, font plus de 255 :
         String label = json.getJSONObject("labels").getJSONObject(LANG).optString("value");
@@ -327,134 +334,210 @@ public class DatabaseInsert {
             aliases = json.optJSONObject("aliases").optJSONArray(LANG);
         }
 
-        try {
-            final String data = json.toString();
+        // /!\ Un label + description ne peuvent pas être insérés 2 x . Ce test n'est pas fait par ce programme /!\
 
-            //ACT ajout des tables wbt_*  au début car un doublon peut provoquer une exception :
-            insert_wbt_table(label,"label");
+        //Le label et la description doivent être différents : ok avec le test ci-dessous
+        if (!label.equals(description)) {
 
-            if (description!=null) {
-                insert_wbt_table(description, "description");
-            }
+            // Does the specified item already have an ID?
+            if (!json.has("id")) {
+                json.put("id", itemId);
 
-            if (aliases!=null) {
-                for (int i = 0; i < aliases.length(); i++) {
-                    String alias = aliases.getJSONObject(i).optString("value");
-                    if (alias.length() > 254)
-                        alias = alias.substring(0, 254);
-
-                    insert_wbt_table(alias, "alias");
+                // All statements also need this ID
+                if (json.has("claims")) {
+                    final JSONObject claims = json.getJSONObject("claims");
+                    for (String claim : claims.keySet()) {
+                        final JSONArray list = claims.getJSONArray(claim);
+                        for (int i = 0; i < list.length(); i++) {
+                            list.getJSONObject(i).put("id", itemId + "$" + UUID.randomUUID().toString());
+                        }
+                    }
                 }
             }
 
 
-            textId++;
-            pstmtInsertText.setLong(1, textId);
-            pstmtInsertText.setString(2, data);
-            executeUpdate(pstmtInsertText);
 
-            pstmtInsertPage.setString(2, itemId);
-            pstmtInsertPage.setString(3, timestamp);
-            pstmtInsertPage.setString(4, timestamp);
-            pstmtInsertPage.setLong(5, textId);
-            pstmtInsertPage.setInt(6, data.length());
+            try {
+                final String data = json.toString();
 
-            pageId++;
-            pstmtInsertPage.setLong(1, pageId);
-            executeUpdate(pstmtInsertPage);
+                //ACT ajout des tables wbt_*  au début car un doublon peut provoquer une exception :
+                insert_wbt_table(label, "label");
 
-            pstmtInsertRevision.setLong(1, pageId);
-            pstmtInsertRevision.setLong(2, pageId);
-            pstmtInsertRevision.setString(3, timestamp);
-            pstmtInsertRevision.setInt(4, data.length());
-            //pstmtInsertRevision.setLong(4, textId);
-            pstmtInsertRevision.setString(5, sha1base36(data));
-            executeUpdate(pstmtInsertRevision);
+                if (description != null) {
+                    insert_wbt_table(description, "description");
+                }
 
-            final String comment = "/* wbeditentity-create:2|en */ " + label + ", " + description;
+                if (aliases != null) {
+                    for (int i = 0; i < aliases.length(); i++) {
+                        String alias = aliases.getJSONObject(i).optString("value");
+                        if (alias.length() > 254)
+                            alias = alias.substring(0, 254);
 
-            pstmtInsertComment.setInt(2, comment.hashCode());
-            pstmtInsertComment.setString(3, comment);
+                        insert_wbt_table(alias, "alias");
+                    }
+                }
 
-            commentId++;
-            pstmtInsertComment.setLong(1, commentId);
-            executeUpdate(pstmtInsertComment);
+                textId++;
+                pstmtInsertText.setLong(1, textId);
+                pstmtInsertText.setString(2, data);
+                executeUpdate(pstmtInsertText);
 
-            pstmtInsertRevisionComment.setLong(1, textId);
-            pstmtInsertRevisionComment.setLong(2, commentId);
-            executeUpdate(pstmtInsertRevisionComment);
+                pstmtInsertPage.setLong(1, pageId);
+                pstmtInsertPage.setString(2, itemId);
+                pstmtInsertPage.setString(3, timestamp);
+                pstmtInsertPage.setString(4, timestamp);
+                pstmtInsertPage.setLong(5, revId);//textId OK?
+                pstmtInsertPage.setInt(6, data.length());
 
-            pstmtInsertRevisionActor.setLong(1, textId);
-            pstmtInsertRevisionActor.setInt(2, ACTOR);
-            pstmtInsertRevisionActor.setString(3, timestamp);
-            pstmtInsertRevisionActor.setLong(4, pageId);
-            executeUpdate(pstmtInsertRevisionActor);
+                executeUpdate(pstmtInsertPage);
 
-            pstmtInsertContent.setInt(2, data.length());
-            pstmtInsertContent.setString(3, sha1base36(data));
-            pstmtInsertContent.setInt(4, contentModelItem);
-            pstmtInsertContent.setString(5, "tt:" + textId);
+                pstmtInsertRevision.setLong(1, pageId);
+                pstmtInsertRevision.setString(2, timestamp);
+                pstmtInsertRevision.setInt(3, data.length());
+                if (create) {
+                    pstmtInsertRevision.setLong(4, 0);
+                }
+                else {
+                    pstmtInsertRevision.setLong(4, revId);
+                }
+                pstmtInsertRevision.setString(5, sha1base36(data));
+                executeUpdate(pstmtInsertRevision);
 
-            contentId++;
-            pstmtInsertContent.setLong(1, contentId);
-            executeUpdate(pstmtInsertContent);
+                String commentValue = comment + label + ", " + description;
 
-            pstmtInsertSlots.setLong(1, textId);
-            pstmtInsertSlots.setLong(2, contentId);
-            pstmtInsertSlots.setLong(3, textId);
-            executeUpdate(pstmtInsertSlots);
+                pstmtInsertComment.setInt(2, commentValue.hashCode());
+                pstmtInsertComment.setString(3, commentValue);
 
-            //ACT
-            recentChangeId++;
-            pstmtInsertRecentChanges.setLong(1, recentChangeId);
-            pstmtInsertRecentChanges.setString(2, timestamp);
-            pstmtInsertRecentChanges.setInt(3, ACTOR);
+                commentId++;
+                pstmtInsertComment.setLong(1, commentId);
+                executeUpdate(pstmtInsertComment);
 
-            pstmtInsertRecentChanges.setString(4, itemId);
-            pstmtInsertRecentChanges.setLong(5, commentId);
+                pstmtInsertRevisionComment.setLong(1, revId);
+                pstmtInsertRevisionComment.setLong(2, commentId);
+                executeUpdate(pstmtInsertRevisionComment);
 
-            pstmtInsertRecentChanges.setLong(6, pageId);
-            pstmtInsertRecentChanges.setLong(7, pageId);
+                pstmtInsertRevisionActor.setLong(1, revId);
+                pstmtInsertRevisionActor.setInt(2, ACTOR);
+                pstmtInsertRevisionActor.setString(3, timestamp);
+                pstmtInsertRevisionActor.setLong(4, pageId);
+                executeUpdate(pstmtInsertRevisionActor);
 
-            pstmtInsertRecentChanges.setInt(8, data.length());
-            executeUpdate(pstmtInsertRecentChanges);
+                pstmtInsertContent.setInt(2, data.length());
+                pstmtInsertContent.setString(3, sha1base36(data));
+                pstmtInsertContent.setInt(4, contentModelItem);
+                pstmtInsertContent.setString(5, "tt:" + textId);
 
-            pstmtUpdateWbIdCounters.setInt(1, lastQNumber);
-            executeUpdate(pstmtUpdateWbIdCounters);
+                contentId++;
+                pstmtInsertContent.setLong(1, contentId);
+                executeUpdate(pstmtInsertContent);
 
-            //logger.info("Nouveau Q:"+lastQNumber);
+                pstmtInsertSlots.setLong(1, textId);
+                pstmtInsertSlots.setLong(2, contentId);
+                pstmtInsertSlots.setLong(3, textId);
+                executeUpdate(pstmtInsertSlots);
+
+                //ACT
+                //recentChangeId++;
+                //pstmtInsertRecentChanges.setLong(1, recentChangeId);
+                pstmtInsertRecentChanges.setString(1, timestamp);
+                pstmtInsertRecentChanges.setInt(2, ACTOR);
+
+                pstmtInsertRecentChanges.setString(3, itemId);
+                pstmtInsertRecentChanges.setLong(4, commentId);
+
+                pstmtInsertRecentChanges.setLong(5, pageId);
+                pstmtInsertRecentChanges.setLong(6, revId);
+
+                pstmtInsertRecentChanges.setLong(7, oldRevId); //0 si create
+
+                if (create) {
+                    pstmtInsertRecentChanges.setLong(8, 1);
+                    pstmtInsertRecentChanges.setString(9, "mw.new");
+                }
+                else {
+                    pstmtInsertRecentChanges.setLong(8, 0);
+                    pstmtInsertRecentChanges.setString(9, "mw.edit");
+                }
+
+                pstmtInsertRecentChanges.setLong(10, oldDataLength); //0 si create
+
+                pstmtInsertRecentChanges.setInt(11, data.length());
+                executeUpdate(pstmtInsertRecentChanges);
+
+                if (create) {
+                    pstmtUpdateWbIdCounters.setInt(1, lastQNumber);
+                    executeUpdate(pstmtUpdateWbIdCounters);
+                }
+
+                //logger.info("Nouveau Q:"+lastQNumber);
+            } catch (Exception e) {
+                logger.error("Erreur titre déjà présent ? : " + label + " exception:" + e.getMessage());
+            }
         }
-        catch (Exception e){
-            logger.error("Erreur titre déjà présent ? : "+label+" exception:"+e.getMessage());
-        }
-        return itemId;
     }
 
     private void insert_wbt_table(String texte, String type) throws Exception{
 
+        final Statement stmt = connection.createStatement();
+
+        long wbx_id = 0;
+        pstmtSelect_wbt_text.setString(1, texte);
+        ResultSet rs = pstmtSelect_wbt_text.executeQuery();
+        if (rs.next()) {
+            wbx_id = rs.getLong(1);
+        }
+        else {
+            pstmtInsert_wbt_text.setString(1, texte);
+            pstmtInsert_wbt_text.executeUpdate();
+            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
+            if (rs.next()) {
+                wbx_id = rs.getLong(1);
+            }
+        }
+        rs.close();
+
+        long wbxl_id = 0;
+        pstmtSelect_wbt_text_in_lang.setString(1, LANG);
+        pstmtSelect_wbt_text_in_lang.setString(2, texte);
+        rs = pstmtSelect_wbt_text_in_lang.executeQuery();
+        if (rs.next()) {
+            wbxl_id = rs.getLong(1);
+        }
+        else {
+            pstmtInsert_wbt_text_in_lang.setString(1, LANG);
+            pstmtInsert_wbt_text_in_lang.setLong(2, wbx_id);
+            pstmtInsert_wbt_text_in_lang.executeUpdate();
+            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
+            if (rs.next()) {
+                wbxl_id = rs.getLong(1);
+            }
+        }
+        rs.close();
+
+        long wbtl_id = 0;
+        pstmtSelect_wbt_term_in_lang.setString(1, wbt_type.get(type));
+        pstmtSelect_wbt_term_in_lang.setString(2, LANG);
+        pstmtSelect_wbt_term_in_lang.setString(3, texte);
+        rs = pstmtSelect_wbt_term_in_lang.executeQuery();
+        if (rs.next()) {
+            wbtl_id = rs.getLong(1);
+        }
+        else {
+            pstmtInsert_wbt_term_in_lang.setString(1, wbt_type.get(type));
+            pstmtInsert_wbt_term_in_lang.setLong(2, wbxl_id);
+            pstmtInsert_wbt_term_in_lang.executeUpdate();
+            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
+            if (rs.next()) {
+                wbtl_id = rs.getLong(1);
+            }
+        }
+        rs.close();
+
+
         //logger.info("insert_wbt_table : "+texte + " "+type+" wbxId:"+wbxId+" wbxlId:"+wbxlId+" wbtlId:"+wbtlId+" wbt_type:"+wbt_type.get(type)+" lastQNumber:"+lastQNumber);
         //Si le texte est un label, il peut y avoir une exception si ce label est déjà présent (pas de doublon autorisé)
-        wbxId++;
-        pstmtInsert_wbt_text.setLong(1, wbxId);
-        pstmtInsert_wbt_text.setString(2, texte);
-        executeUpdate(pstmtInsert_wbt_text);
-
-        wbxlId++;
-        pstmtInsert_wbt_text_in_lang.setLong(1, wbxlId);
-        pstmtInsert_wbt_text_in_lang.setString(2, LANG);
-        pstmtInsert_wbt_text_in_lang.setLong(3, wbxId);
-        executeUpdate(pstmtInsert_wbt_text_in_lang);
-
-        wbtlId++;
-        pstmtInsert_wbt_term_in_lang.setLong(1, wbtlId);
-        pstmtInsert_wbt_term_in_lang.setString(2, wbt_type.get(type));
-        pstmtInsert_wbt_term_in_lang.setLong(3, wbxlId);
-        executeUpdate(pstmtInsert_wbt_term_in_lang);
-
-        wbitId++;
-        pstmtInsert_wbt_item_terms.setLong(1, wbitId);
-        pstmtInsert_wbt_item_terms.setInt(2, lastQNumber);
-        pstmtInsert_wbt_item_terms.setLong(3, wbtlId);
+        pstmtInsert_wbt_item_terms.setInt(1, lastQNumber);
+        pstmtInsert_wbt_item_terms.setLong(2, wbtl_id);
         executeUpdate(pstmtInsert_wbt_item_terms);
     }
 

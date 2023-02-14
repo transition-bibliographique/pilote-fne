@@ -115,13 +115,13 @@ public class DatabaseInsert {
         //Version avec executeBatch()
         pstmtInsertText.executeBatch();
         pstmtInsertPage.executeBatch();
-        //pstmtInsertRevision.executeBatch();
+        pstmtInsertRevision.executeBatch();
         pstmtInsertComment.executeBatch();
         pstmtInsertRevisionComment.executeBatch();
         pstmtInsertRevisionActor.executeBatch();
         pstmtInsertContent.executeBatch();
         pstmtInsertSlots.executeBatch();
-        //pstmtInsertRecentChanges.executeBatch();
+        pstmtInsertRecentChanges.executeBatch();
         pstmtUpdateWbIdCounters.executeBatch();
         pstmtInsert_wbt_item_terms.executeBatch();
         //A enlever si pas executeBatch()
@@ -136,7 +136,7 @@ public class DatabaseInsert {
         pstmtInsertComment = connection.prepareStatement("INSERT INTO comment VALUES(?,?,?,NULL)");
         pstmtInsertContent = connection.prepareStatement("INSERT INTO content VALUES(?,?,?,?,?)");
 
-        pstmtInsertRevision = connection.prepareStatement("INSERT INTO revision VALUES(NULL,?,0,0,?,0,0,?,?,?)");
+        pstmtInsertRevision = connection.prepareStatement("INSERT INTO revision VALUES(?,?,0,0,?,0,0,?,?,?)");
         pstmtInsertRevisionComment = connection.prepareStatement("INSERT INTO revision_comment_temp VALUES (?,?)");
         pstmtInsertRevisionActor = connection.prepareStatement("INSERT INTO revision_actor_temp VALUES(?,?,?,?)");
 
@@ -145,7 +145,7 @@ public class DatabaseInsert {
         pstmtSelectLastItemId = connection.prepareStatement("SELECT id_value  AS next_id from wb_id_counters where id_type = 'wikibase-item'");
         pstmtSelectItem = connection.prepareStatement("SELECT * FROM page WHERE page_namespace=120 AND page_title=?");
 
-        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (NULL,?,?,'120',?,?,0,0,0,?,?,?,?,?,2,'172.18.0.1',?,?,0,0,NULL,'','')");
+        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (?,?,?,'120',?,?,0,0,0,?,?,?,?,?,2,'172.18.0.1',?,?,0,0,NULL,'','')");
         pstmtInsertOldRecentChanges = connection.prepareStatement("SELECT rc_new_len FROM recentchanges WHERE rc_id <= ? ORDER BY rc_id DESC LIMIT 1"); //?? https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/dbconnection.py#L312
 
         pstmtSelect_wbt_text  = connection.prepareStatement("SELECT wbx_id FROM wbt_text WHERE wbx_text=?");
@@ -397,17 +397,18 @@ public class DatabaseInsert {
 
                 executeUpdate(pstmtInsertPage);
 
-                pstmtInsertRevision.setLong(1, pageId);
-                pstmtInsertRevision.setString(2, timestamp);
-                pstmtInsertRevision.setInt(3, data.length());
+                pstmtInsertRevision.setLong(1, revId);
+                pstmtInsertRevision.setLong(2, pageId);
+                pstmtInsertRevision.setString(3, timestamp);
+                pstmtInsertRevision.setInt(4, data.length());
                 if (create) {
-                    pstmtInsertRevision.setLong(4, 0);
+                    pstmtInsertRevision.setLong(5, 0);
                 }
                 else {
-                    pstmtInsertRevision.setLong(4, revId);
+                    pstmtInsertRevision.setLong(5, revId);
                 }
-                pstmtInsertRevision.setString(5, sha1base36(data));
-                pstmtInsertRevision.executeUpdate();
+                pstmtInsertRevision.setString(6, sha1base36(data));
+                executeUpdate(pstmtInsertRevision);
 
                 String commentValue = comment + label + ", " + description;
 
@@ -443,32 +444,32 @@ public class DatabaseInsert {
                 executeUpdate(pstmtInsertSlots);
 
                 //ACT
-                //recentChangeId++;
-                //pstmtInsertRecentChanges.setLong(1, recentChangeId);
-                pstmtInsertRecentChanges.setString(1, timestamp);
-                pstmtInsertRecentChanges.setInt(2, ACTOR);
+                recentChangeId++;
+                pstmtInsertRecentChanges.setLong(1, recentChangeId);
+                pstmtInsertRecentChanges.setString(2, timestamp);
+                pstmtInsertRecentChanges.setInt(3, ACTOR);
 
-                pstmtInsertRecentChanges.setString(3, itemId);
-                pstmtInsertRecentChanges.setLong(4, commentId);
+                pstmtInsertRecentChanges.setString(4, itemId);
+                pstmtInsertRecentChanges.setLong(5, commentId);
 
-                pstmtInsertRecentChanges.setLong(5, pageId);
-                pstmtInsertRecentChanges.setLong(6, revId);
+                pstmtInsertRecentChanges.setLong(6, pageId);
+                pstmtInsertRecentChanges.setLong(7, revId);
 
-                pstmtInsertRecentChanges.setLong(7, oldRevId); //0 si create
+                pstmtInsertRecentChanges.setLong(8, oldRevId); //0 si create
 
                 if (create) {
-                    pstmtInsertRecentChanges.setLong(8, 1);
-                    pstmtInsertRecentChanges.setString(9, "mw.new");
+                    pstmtInsertRecentChanges.setLong(9, 1);
+                    pstmtInsertRecentChanges.setString(10, "mw.new");
                 }
                 else {
-                    pstmtInsertRecentChanges.setLong(8, 0);
-                    pstmtInsertRecentChanges.setString(9, "mw.edit");
+                    pstmtInsertRecentChanges.setLong(9, 0);
+                    pstmtInsertRecentChanges.setString(10, "mw.edit");
                 }
 
-                pstmtInsertRecentChanges.setLong(10, oldDataLength); //0 si create
+                pstmtInsertRecentChanges.setLong(11, oldDataLength); //0 si create
 
-                pstmtInsertRecentChanges.setInt(11, data.length());
-                pstmtInsertRecentChanges.executeUpdate();
+                pstmtInsertRecentChanges.setInt(12, data.length());
+                executeUpdate(pstmtInsertRecentChanges);
 
                 if (create) {
                     pstmtUpdateWbIdCounters.setInt(1, lastQNumber);

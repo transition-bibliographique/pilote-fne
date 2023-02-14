@@ -115,13 +115,13 @@ public class DatabaseInsert {
         //Version avec executeBatch()
         pstmtInsertText.executeBatch();
         pstmtInsertPage.executeBatch();
-        pstmtInsertRevision.executeBatch();
+        //pstmtInsertRevision.executeBatch();
         pstmtInsertComment.executeBatch();
         pstmtInsertRevisionComment.executeBatch();
         pstmtInsertRevisionActor.executeBatch();
         pstmtInsertContent.executeBatch();
         pstmtInsertSlots.executeBatch();
-        pstmtInsertRecentChanges.executeBatch();
+        //pstmtInsertRecentChanges.executeBatch();
         pstmtUpdateWbIdCounters.executeBatch();
         pstmtInsert_wbt_item_terms.executeBatch();
         //A enlever si pas executeBatch()
@@ -307,6 +307,12 @@ public class DatabaseInsert {
     }
 
     private void insertItem(String jsonString, boolean create) throws SQLException {
+
+        /*logger.info("lastQNumber:"+lastQNumber+" itemId:"+itemId+" textId:"+textId
+        +" pageId:"+pageId+" revId:"+revId+" commentId:"+commentId+" contentId:"+contentId
+        +" contentModelItem:"+contentModelItem+" recentChangeId:"+recentChangeId
+                + " oldRevId:"+oldRevId+" oldDataLength:"+oldDataLength);
+*/
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 
@@ -401,7 +407,7 @@ public class DatabaseInsert {
                     pstmtInsertRevision.setLong(4, revId);
                 }
                 pstmtInsertRevision.setString(5, sha1base36(data));
-                executeUpdate(pstmtInsertRevision);
+                pstmtInsertRevision.executeUpdate();
 
                 String commentValue = comment + label + ", " + description;
 
@@ -462,7 +468,7 @@ public class DatabaseInsert {
                 pstmtInsertRecentChanges.setLong(10, oldDataLength); //0 si create
 
                 pstmtInsertRecentChanges.setInt(11, data.length());
-                executeUpdate(pstmtInsertRecentChanges);
+                pstmtInsertRecentChanges.executeUpdate();
 
                 if (create) {
                     pstmtUpdateWbIdCounters.setInt(1, lastQNumber);

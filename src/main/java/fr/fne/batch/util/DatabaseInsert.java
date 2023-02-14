@@ -66,6 +66,11 @@ public class DatabaseInsert {
     private String comment = "/* wbeditentity-create:2|fr */ ";
     private long oldRevId = 0;
     private long oldDataLength = 0;
+    private long wbx_id_cursor = 0;
+    private long wbxl_id_cursor = 0;
+    private long wbtl_id_cursor = 0;
+
+
 
     public DatabaseInsert(Connection con) throws SQLException, IOException {
         this.connection = con;
@@ -149,16 +154,16 @@ public class DatabaseInsert {
         pstmtInsertOldRecentChanges = connection.prepareStatement("SELECT rc_new_len FROM recentchanges WHERE rc_id <= ? ORDER BY rc_id DESC LIMIT 1"); //?? https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/dbconnection.py#L312
 
         pstmtSelect_wbt_text  = connection.prepareStatement("SELECT wbx_id FROM wbt_text WHERE wbx_text=?");
-        pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(NULL,?)");
+        pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(?,?)");
 
         pstmtSelect_wbt_text_in_lang = connection.prepareStatement("SELECT wbxl_id FROM wbt_text_in_lang, wbt_text " +
                 "WHERE wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
-        pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(NULL,?,?)");
+        pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(?,?,?)");
 
         pstmtSelect_wbt_term_in_lang = connection.prepareStatement("SELECT wbtl_id FROM wbt_term_in_lang, wbt_text_in_lang, " +
                 "wbt_text WHERE wbtl_text_in_lang_id=wbxl_id AND wbtl_type_id=? " +
                 "AND wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
-        pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(NULL,?,?)");
+        pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(?,?,?)");
 
         pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(NULL,?,?)");
 
@@ -223,6 +228,24 @@ public class DatabaseInsert {
         rs = stmt.executeQuery("SELECT wby_name, wby_id FROM wbt_type");
         while (rs.next()){
             wbt_type.put(rs.getString(1),rs.getString(2));
+        }
+        rs.close();
+
+        rs = stmt.executeQuery("SELECT max(wbx_id) FROM wbt_text");
+        if (rs.next()) {
+            wbx_id_cursor = rs.getLong(1);
+        }
+        rs.close();
+
+        rs = stmt.executeQuery("SELECT max(wbxl_id) FROM wbt_text_in_lang");
+        if (rs.next()) {
+            wbxl_id_cursor = rs.getLong(1);
+        }
+        rs.close();
+
+        rs = stmt.executeQuery("SELECT max(wbtl_id) FROM wbt_term_in_lang");
+        if (rs.next()) {
+            wbtl_id_cursor = rs.getLong(1);
         }
         rs.close();
 
@@ -494,12 +517,11 @@ public class DatabaseInsert {
             wbx_id = rs.getLong(1);
         }
         else {
-            pstmtInsert_wbt_text.setString(1, texte);
+            wbx_id_cursor++;
+            pstmtInsert_wbt_text.setLong(1, wbx_id_cursor);
+            pstmtInsert_wbt_text.setString(2, texte);
             pstmtInsert_wbt_text.executeUpdate();
-            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
-            if (rs.next()) {
-                wbx_id = rs.getLong(1);
-            }
+            wbx_id = wbx_id_cursor;
         }
         rs.close();
 
@@ -511,13 +533,12 @@ public class DatabaseInsert {
             wbxl_id = rs.getLong(1);
         }
         else {
-            pstmtInsert_wbt_text_in_lang.setString(1, LANG);
-            pstmtInsert_wbt_text_in_lang.setLong(2, wbx_id);
+            wbxl_id_cursor++;
+            pstmtInsert_wbt_text_in_lang.setLong(1, wbxl_id_cursor);
+            pstmtInsert_wbt_text_in_lang.setString(2, LANG);
+            pstmtInsert_wbt_text_in_lang.setLong(3, wbx_id);
             pstmtInsert_wbt_text_in_lang.executeUpdate();
-            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
-            if (rs.next()) {
-                wbxl_id = rs.getLong(1);
-            }
+            wbxl_id = wbxl_id_cursor;
         }
         rs.close();
 
@@ -530,13 +551,12 @@ public class DatabaseInsert {
             wbtl_id = rs.getLong(1);
         }
         else {
-            pstmtInsert_wbt_term_in_lang.setString(1, wbt_type.get(type));
-            pstmtInsert_wbt_term_in_lang.setLong(2, wbxl_id);
+            wbtl_id_cursor++;
+            pstmtInsert_wbt_term_in_lang.setLong(1, wbtl_id_cursor);
+            pstmtInsert_wbt_term_in_lang.setString(2, wbt_type.get(type));
+            pstmtInsert_wbt_term_in_lang.setLong(3, wbxl_id);
             pstmtInsert_wbt_term_in_lang.executeUpdate();
-            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
-            if (rs.next()) {
-                wbtl_id = rs.getLong(1);
-            }
+            wbtl_id = wbtl_id_cursor;
         }
         rs.close();
 

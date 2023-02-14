@@ -112,10 +112,6 @@ public class DatabaseInsert {
         connection.close();
     }
 
-    public void startTransaction() throws SQLException {
-        connection.setAutoCommit(false);
-    }
-
     public void commit() throws SQLException {
         //Version avec executeBatch()
         pstmtInsertText.executeBatch();

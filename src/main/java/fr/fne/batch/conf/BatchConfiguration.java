@@ -117,6 +117,7 @@ public class BatchConfiguration {
     @Bean
     public ItemWriter writer() throws SQLException, IOException {
         Connection connection = DriverManager.getConnection(mysqlUrl, mysqlLogin, mysqlPwd);
+        connection.setAutoCommit(false);
         DatabaseInsert di = new DatabaseInsert(connection);
         return new ItemDocumentWriter(di);
     }

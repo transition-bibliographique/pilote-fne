@@ -80,9 +80,8 @@ public class ChargementParSQL {
 
             //Test chargement direct en BDD
             Connection connection = DriverManager.getConnection(mysqlUrl, mysqlLogin, mysqlPwd);
-
+            connection.setAutoCommit(false);
             DatabaseInsert di = new DatabaseInsert(connection);
-            di.startTransaction();
 
             final StopWatch stopWatch = new StopWatch();
             stopWatch.start();

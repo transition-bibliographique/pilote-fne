@@ -1,6 +1,5 @@
 package fr.fne.batch.util;
 
-import fr.fne.batch.services.ChargementParSQL;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -23,7 +22,7 @@ import java.util.UUID;
  */
 public class DatabaseInsert {
 
-    private final Logger logger = LoggerFactory.getLogger(ChargementParSQL.class);
+    private final Logger logger = LoggerFactory.getLogger(DatabaseInsert.class);
     private final static String LANG = "fr"; //Lang des insertions
     private final static int ACTOR = 1;
     private final Connection connection;
@@ -67,6 +66,11 @@ public class DatabaseInsert {
     private String comment = "/* wbeditentity-create:2|fr */ ";
     private long oldRevId = 0;
     private long oldDataLength = 0;
+    private long wbx_id_cursor = 0;
+    private long wbxl_id_cursor = 0;
+    private long wbtl_id_cursor = 0;
+
+
 
     public DatabaseInsert(Connection con) throws SQLException, IOException {
         this.connection = con;
@@ -108,10 +112,6 @@ public class DatabaseInsert {
         connection.close();
     }
 
-    public void startTransaction() throws SQLException {
-        connection.setAutoCommit(false);
-    }
-
     public void commit() throws SQLException {
         //Version avec executeBatch()
         pstmtInsertText.executeBatch();
@@ -137,7 +137,7 @@ public class DatabaseInsert {
         pstmtInsertComment = connection.prepareStatement("INSERT INTO comment VALUES(?,?,?,NULL)");
         pstmtInsertContent = connection.prepareStatement("INSERT INTO content VALUES(?,?,?,?,?)");
 
-        pstmtInsertRevision = connection.prepareStatement("INSERT INTO revision VALUES(NULL,?,0,0,?,0,0,?,?,?)");
+        pstmtInsertRevision = connection.prepareStatement("INSERT INTO revision VALUES(?,?,0,0,?,0,0,?,?,?)");
         pstmtInsertRevisionComment = connection.prepareStatement("INSERT INTO revision_comment_temp VALUES (?,?)");
         pstmtInsertRevisionActor = connection.prepareStatement("INSERT INTO revision_actor_temp VALUES(?,?,?,?)");
 
@@ -146,20 +146,20 @@ public class DatabaseInsert {
         pstmtSelectLastItemId = connection.prepareStatement("SELECT id_value  AS next_id from wb_id_counters where id_type = 'wikibase-item'");
         pstmtSelectItem = connection.prepareStatement("SELECT * FROM page WHERE page_namespace=120 AND page_title=?");
 
-        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (NULL,?,?,'120',?,?,0,0,0,?,?,?,?,?,2,'172.18.0.1',?,?,0,0,NULL,'','')");
+        pstmtInsertRecentChanges = connection.prepareStatement("INSERT INTO recentchanges VALUES (?,?,?,'120',?,?,0,0,0,?,?,?,?,?,2,'172.18.0.1',?,?,0,0,NULL,'','')");
         pstmtInsertOldRecentChanges = connection.prepareStatement("SELECT rc_new_len FROM recentchanges WHERE rc_id <= ? ORDER BY rc_id DESC LIMIT 1"); //?? https://github.com/UB-Mannheim/RaiseWikibase/blob/main/RaiseWikibase/dbconnection.py#L312
 
         pstmtSelect_wbt_text  = connection.prepareStatement("SELECT wbx_id FROM wbt_text WHERE wbx_text=?");
-        pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(NULL,?)");
+        pstmtInsert_wbt_text  = connection.prepareStatement("INSERT INTO wbt_text VALUES(?,?)");
 
         pstmtSelect_wbt_text_in_lang = connection.prepareStatement("SELECT wbxl_id FROM wbt_text_in_lang, wbt_text " +
                 "WHERE wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
-        pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(NULL,?,?)");
+        pstmtInsert_wbt_text_in_lang = connection.prepareStatement("INSERT INTO wbt_text_in_lang VALUES(?,?,?)");
 
         pstmtSelect_wbt_term_in_lang = connection.prepareStatement("SELECT wbtl_id FROM wbt_term_in_lang, wbt_text_in_lang, " +
                 "wbt_text WHERE wbtl_text_in_lang_id=wbxl_id AND wbtl_type_id=? " +
                 "AND wbxl_language=? AND wbxl_text_id=wbx_id AND wbx_text=?");
-        pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(NULL,?,?)");
+        pstmtInsert_wbt_term_in_lang = connection.prepareStatement("INSERT INTO wbt_term_in_lang VALUES(?,?,?)");
 
         pstmtInsert_wbt_item_terms = connection.prepareStatement("INSERT IGNORE INTO wbt_item_terms VALUES(NULL,?,?)");
 
@@ -224,6 +224,24 @@ public class DatabaseInsert {
         rs = stmt.executeQuery("SELECT wby_name, wby_id FROM wbt_type");
         while (rs.next()){
             wbt_type.put(rs.getString(1),rs.getString(2));
+        }
+        rs.close();
+
+        rs = stmt.executeQuery("SELECT max(wbx_id) FROM wbt_text");
+        if (rs.next()) {
+            wbx_id_cursor = rs.getLong(1);
+        }
+        rs.close();
+
+        rs = stmt.executeQuery("SELECT max(wbxl_id) FROM wbt_text_in_lang");
+        if (rs.next()) {
+            wbxl_id_cursor = rs.getLong(1);
+        }
+        rs.close();
+
+        rs = stmt.executeQuery("SELECT max(wbtl_id) FROM wbt_term_in_lang");
+        if (rs.next()) {
+            wbtl_id_cursor = rs.getLong(1);
         }
         rs.close();
 
@@ -308,6 +326,12 @@ public class DatabaseInsert {
     }
 
     private void insertItem(String jsonString, boolean create) throws SQLException {
+
+        /*logger.info("lastQNumber:"+lastQNumber+" itemId:"+itemId+" textId:"+textId
+        +" pageId:"+pageId+" revId:"+revId+" commentId:"+commentId+" contentId:"+contentId
+        +" contentModelItem:"+contentModelItem+" recentChangeId:"+recentChangeId
+                + " oldRevId:"+oldRevId+" oldDataLength:"+oldDataLength);
+        */
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 
@@ -392,16 +416,17 @@ public class DatabaseInsert {
 
                 executeUpdate(pstmtInsertPage);
 
-                pstmtInsertRevision.setLong(1, pageId);
-                pstmtInsertRevision.setString(2, timestamp);
-                pstmtInsertRevision.setInt(3, data.length());
+                pstmtInsertRevision.setLong(1, revId);
+                pstmtInsertRevision.setLong(2, pageId);
+                pstmtInsertRevision.setString(3, timestamp);
+                pstmtInsertRevision.setInt(4, data.length());
                 if (create) {
-                    pstmtInsertRevision.setLong(4, 0);
+                    pstmtInsertRevision.setLong(5, 0);
                 }
                 else {
-                    pstmtInsertRevision.setLong(4, revId);
+                    pstmtInsertRevision.setLong(5, revId);
                 }
-                pstmtInsertRevision.setString(5, sha1base36(data));
+                pstmtInsertRevision.setString(6, sha1base36(data));
                 executeUpdate(pstmtInsertRevision);
 
                 String commentValue = comment + label + ", " + description;
@@ -438,31 +463,31 @@ public class DatabaseInsert {
                 executeUpdate(pstmtInsertSlots);
 
                 //ACT
-                //recentChangeId++;
-                //pstmtInsertRecentChanges.setLong(1, recentChangeId);
-                pstmtInsertRecentChanges.setString(1, timestamp);
-                pstmtInsertRecentChanges.setInt(2, ACTOR);
+                recentChangeId++;
+                pstmtInsertRecentChanges.setLong(1, recentChangeId);
+                pstmtInsertRecentChanges.setString(2, timestamp);
+                pstmtInsertRecentChanges.setInt(3, ACTOR);
 
-                pstmtInsertRecentChanges.setString(3, itemId);
-                pstmtInsertRecentChanges.setLong(4, commentId);
+                pstmtInsertRecentChanges.setString(4, itemId);
+                pstmtInsertRecentChanges.setLong(5, commentId);
 
-                pstmtInsertRecentChanges.setLong(5, pageId);
-                pstmtInsertRecentChanges.setLong(6, revId);
+                pstmtInsertRecentChanges.setLong(6, pageId);
+                pstmtInsertRecentChanges.setLong(7, revId);
 
-                pstmtInsertRecentChanges.setLong(7, oldRevId); //0 si create
+                pstmtInsertRecentChanges.setLong(8, oldRevId); //0 si create
 
                 if (create) {
-                    pstmtInsertRecentChanges.setLong(8, 1);
-                    pstmtInsertRecentChanges.setString(9, "mw.new");
+                    pstmtInsertRecentChanges.setLong(9, 1);
+                    pstmtInsertRecentChanges.setString(10, "mw.new");
                 }
                 else {
-                    pstmtInsertRecentChanges.setLong(8, 0);
-                    pstmtInsertRecentChanges.setString(9, "mw.edit");
+                    pstmtInsertRecentChanges.setLong(9, 0);
+                    pstmtInsertRecentChanges.setString(10, "mw.edit");
                 }
 
-                pstmtInsertRecentChanges.setLong(10, oldDataLength); //0 si create
+                pstmtInsertRecentChanges.setLong(11, oldDataLength); //0 si create
 
-                pstmtInsertRecentChanges.setInt(11, data.length());
+                pstmtInsertRecentChanges.setInt(12, data.length());
                 executeUpdate(pstmtInsertRecentChanges);
 
                 if (create) {
@@ -488,12 +513,11 @@ public class DatabaseInsert {
             wbx_id = rs.getLong(1);
         }
         else {
-            pstmtInsert_wbt_text.setString(1, texte);
+            wbx_id_cursor++;
+            pstmtInsert_wbt_text.setLong(1, wbx_id_cursor);
+            pstmtInsert_wbt_text.setString(2, texte);
             pstmtInsert_wbt_text.executeUpdate();
-            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
-            if (rs.next()) {
-                wbx_id = rs.getLong(1);
-            }
+            wbx_id = wbx_id_cursor;
         }
         rs.close();
 
@@ -505,13 +529,12 @@ public class DatabaseInsert {
             wbxl_id = rs.getLong(1);
         }
         else {
-            pstmtInsert_wbt_text_in_lang.setString(1, LANG);
-            pstmtInsert_wbt_text_in_lang.setLong(2, wbx_id);
+            wbxl_id_cursor++;
+            pstmtInsert_wbt_text_in_lang.setLong(1, wbxl_id_cursor);
+            pstmtInsert_wbt_text_in_lang.setString(2, LANG);
+            pstmtInsert_wbt_text_in_lang.setLong(3, wbx_id);
             pstmtInsert_wbt_text_in_lang.executeUpdate();
-            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
-            if (rs.next()) {
-                wbxl_id = rs.getLong(1);
-            }
+            wbxl_id = wbxl_id_cursor;
         }
         rs.close();
 
@@ -524,13 +547,12 @@ public class DatabaseInsert {
             wbtl_id = rs.getLong(1);
         }
         else {
-            pstmtInsert_wbt_term_in_lang.setString(1, wbt_type.get(type));
-            pstmtInsert_wbt_term_in_lang.setLong(2, wbxl_id);
+            wbtl_id_cursor++;
+            pstmtInsert_wbt_term_in_lang.setLong(1, wbtl_id_cursor);
+            pstmtInsert_wbt_term_in_lang.setString(2, wbt_type.get(type));
+            pstmtInsert_wbt_term_in_lang.setLong(3, wbxl_id);
             pstmtInsert_wbt_term_in_lang.executeUpdate();
-            rs = stmt.executeQuery("SELECT LAST_INSERT_ID()");
-            if (rs.next()) {
-                wbtl_id = rs.getLong(1);
-            }
+            wbtl_id = wbtl_id_cursor;
         }
         rs.close();
 

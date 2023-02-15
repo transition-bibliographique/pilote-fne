@@ -331,7 +331,7 @@ public class DatabaseInsert {
         +" pageId:"+pageId+" revId:"+revId+" commentId:"+commentId+" contentId:"+contentId
         +" contentModelItem:"+contentModelItem+" recentChangeId:"+recentChangeId
                 + " oldRevId:"+oldRevId+" oldDataLength:"+oldDataLength);
-*/
+        */
         //logger.info("JSON : "+jsonString);
         final JSONObject json = new JSONObject(jsonString);
 

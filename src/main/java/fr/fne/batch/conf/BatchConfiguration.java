@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemReader;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
@@ -65,6 +68,11 @@ public class BatchConfiguration {
     private  Map<String, String> props;
     @Value("${wikibase.url}")
     private String urlWikiBase;
+
+    @Autowired
+    JobRepository jobRepository;
+
+
 
     @Bean
     public ItemReader<File> reader () throws Exception {
@@ -168,7 +176,17 @@ public class BatchConfiguration {
                 .reader(this.reader())
                 .processor(this.processor())
                 .writer(this.writerAPI())
+                .taskExecutor(new SimpleAsyncTaskExecutor())
                 .build();
+    }
+
+    @Bean
+    public SimpleAsyncTaskExecutor taskExecutor(){
+        SimpleAsyncTaskExecutor simpleAsyncTaskExecutor = new SimpleAsyncTaskExecutor();
+        simpleAsyncTaskExecutor.setConcurrencyLimit(10);
+        simpleAsyncTaskExecutor.setThreadPriority(0);
+        simpleAsyncTaskExecutor.setThreadNamePrefix("MySimpleAsyncThreads");
+        return simpleAsyncTaskExecutor;
     }
 
     @Bean

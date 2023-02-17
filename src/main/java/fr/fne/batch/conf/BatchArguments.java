@@ -72,7 +72,7 @@ public class BatchArguments {
         nameOption.setRequired(false);
         this.options.addOption(nameOption);
 
-        Option nameOption2 = new Option("a", "format", false, "Insertion des données par api");
+        Option nameOption2 = new Option("a", "api", false, "Insertion des données par api");
         nameOption2.setRequired(false);
         this.options.addOption(nameOption2);
 
@@ -89,9 +89,7 @@ public class BatchArguments {
         return isApi;
     }
 
-    public boolean isFormat () {
-        return isFormat;
-    }
+    public boolean isFormat () { return isFormat; }
 
     /**
      * End the batch.

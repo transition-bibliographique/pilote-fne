@@ -175,21 +175,21 @@ public class BatchConfiguration {
     public Job importUserJob(JobRepository jobRepository, Step stepDataSQL, Step stepDataAPI, Step stepFormat) {
 
         // Seulement le format
-        if(batchArguments.isFormat()){
+        if (batchArguments.isFormat()){
             return new JobBuilder("insertWikibase", jobRepository)
                     .incrementer(new RunIdIncrementer())
                     .flow(stepFormat)
                     .end()
                     .build();
         }
-        else if(batchArguments.isSql()){
+        else if (batchArguments.isSql()){
             return new JobBuilder("insertWikibase", jobRepository)
                     .incrementer(new RunIdIncrementer())
                     .flow(stepDataSQL)
                     .end()
                     .build();
         }
-        else if(batchArguments.isApi()){
+        else if (batchArguments.isApi()){
             return new JobBuilder("insertWikibase", jobRepository)
                     .incrementer(new RunIdIncrementer())
                     .flow(stepDataAPI)

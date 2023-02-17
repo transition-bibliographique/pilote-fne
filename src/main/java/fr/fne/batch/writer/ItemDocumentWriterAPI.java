@@ -50,7 +50,7 @@ public class ItemDocumentWriterAPI implements ItemWriter<List<ItemDocument>> {
                 for (ItemDocument itemDocument : itemDocumentList) {
                     params.put("data", JsonSerializer.getJsonString(itemDocument));
                     JSONObject json = apiWB.postJson(params);
-                    logger.info("json : "+json.toString());
+                    //logger.info("json : "+json.toString());
                     nbItem++;
                 }
             }

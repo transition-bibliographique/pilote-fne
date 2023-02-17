@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
@@ -41,6 +42,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -176,17 +178,26 @@ public class BatchConfiguration {
                 .reader(this.reader())
                 .processor(this.processor())
                 .writer(this.writerAPI())
-                .taskExecutor(new SimpleAsyncTaskExecutor())
+                .taskExecutor(taskExecutorAsync())
+                //.taskExecutor(taskExecutorMultiThread())
                 .build();
     }
 
     @Bean
-    public SimpleAsyncTaskExecutor taskExecutor(){
+    public SimpleAsyncTaskExecutor taskExecutorAsync(){
         SimpleAsyncTaskExecutor simpleAsyncTaskExecutor = new SimpleAsyncTaskExecutor();
-        simpleAsyncTaskExecutor.setConcurrencyLimit(10);
-        simpleAsyncTaskExecutor.setThreadPriority(0);
-        simpleAsyncTaskExecutor.setThreadNamePrefix("MySimpleAsyncThreads");
+        //simpleAsyncTaskExecutor.setConcurrencyLimit(10); //Par défaut, illimité
+        simpleAsyncTaskExecutor.setThreadNamePrefix("AsyncThread");
         return simpleAsyncTaskExecutor;
+    }
+
+    @Bean
+    public ThreadPoolTaskExecutor taskExecutorMultiThread(){
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+        threadPoolTaskExecutor.setCorePoolSize(10); //Nombre de threads
+        threadPoolTaskExecutor.setQueueCapacity(10);
+        threadPoolTaskExecutor.setThreadNamePrefix("MultiThread");
+        return threadPoolTaskExecutor;
     }
 
     @Bean

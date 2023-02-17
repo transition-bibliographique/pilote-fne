@@ -5,7 +5,8 @@ import fr.fne.batch.tasklet.FormatTasklet;
 import fr.fne.batch.util.ApiWB;
 import fr.fne.batch.util.DatabaseInsert;
 import fr.fne.batch.util.Format;
-import fr.fne.batch.writer.ItemDocumentWriter;
+import fr.fne.batch.writer.ItemDocumentWriterAPI;
+import fr.fne.batch.writer.ItemDocumentWriterSQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -115,11 +116,16 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public ItemWriter writer() throws SQLException, IOException {
+    public ItemWriter writerSQL() throws SQLException, IOException {
         Connection connection = DriverManager.getConnection(mysqlUrl, mysqlLogin, mysqlPwd);
         connection.setAutoCommit(false);
         DatabaseInsert di = new DatabaseInsert(connection);
-        return new ItemDocumentWriter(di);
+        return new ItemDocumentWriterSQL(di);
+    }
+
+    @Bean
+    public ItemWriter writerAPI() throws Exception {
+        return new ItemDocumentWriterAPI(apiWB);
     }
 
     @Bean
@@ -138,35 +144,58 @@ public class BatchConfiguration {
     }
 
     /**
-     * Etape de création des données
+     * Etape de création des données par SQL
      * (1 chunk équivaux à 5000 notices)
      */
     @Bean
-    public Step stepData (JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
-        return new StepBuilder("stepData", jobRepository)
+    public Step stepDataSQL (JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
+        return new StepBuilder("stepDataSQL", jobRepository)
                 .<File, List<ItemDocument>> chunk(chunkSize, transactionManager)
                 .reader(this.reader())
                 .processor(this.processor())
-                .writer(this.writer())
+                .writer(this.writerSQL())
+                .build();
+    }
+
+    /**
+     * Etape de création des données par API
+     * (1 chunk équivaux à 5000 notices)
+     */
+    @Bean
+    public Step stepDataAPI (JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
+        return new StepBuilder("stepDataAPI", jobRepository)
+                .<File, List<ItemDocument>> chunk(chunkSize, transactionManager)
+                .reader(this.reader())
+                .processor(this.processor())
+                .writer(this.writerAPI())
                 .build();
     }
 
     @Bean
-    public Job importUserJob(JobRepository jobRepository, Step stepData, Step stepFormat) {
+    public Job importUserJob(JobRepository jobRepository, Step stepDataSQL, Step stepDataAPI, Step stepFormat) {
 
         // Seulement le format
-        if(batchArguments.isFormat() && !batchArguments.isSql()){
+        if(batchArguments.isFormat()){
             return new JobBuilder("insertWikibase", jobRepository)
                     .incrementer(new RunIdIncrementer())
                     .flow(stepFormat)
                     .end()
                     .build();
         }
-        // Seulement les données
-        return new JobBuilder("insertWikibase", jobRepository)
-                .incrementer(new RunIdIncrementer())
-                .flow(stepData)
-                .end()
-                .build();
+        else if(batchArguments.isSql()){
+            return new JobBuilder("insertWikibase", jobRepository)
+                    .incrementer(new RunIdIncrementer())
+                    .flow(stepDataSQL)
+                    .end()
+                    .build();
+        }
+        else if(batchArguments.isApi()){
+            return new JobBuilder("insertWikibase", jobRepository)
+                    .incrementer(new RunIdIncrementer())
+                    .flow(stepDataAPI)
+                    .end()
+                    .build();
+        }
+        return null;
     }
 }

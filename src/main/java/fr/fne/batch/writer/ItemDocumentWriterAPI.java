@@ -1,7 +1,7 @@
 package fr.fne.batch.writer;
 
-import fr.fne.batch.conf.BatchConfiguration;
-import fr.fne.batch.util.DatabaseInsert;
+import fr.fne.batch.util.ApiWB;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
@@ -13,38 +13,46 @@ import org.springframework.batch.item.ItemWriter;
 import org.wikidata.wdtk.datamodel.helpers.JsonSerializer;
 import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
-public class ItemDocumentWriter implements ItemWriter<List<ItemDocument>> {
-    private final Logger logger = LoggerFactory.getLogger(ItemDocumentWriter.class);
+public class ItemDocumentWriterAPI implements ItemWriter<List<ItemDocument>> {
+    private final Logger logger = LoggerFactory.getLogger(ItemDocumentWriterAPI.class);
 
-    private final DatabaseInsert di;
+    private final String csrftoken;
+
+    private final ApiWB apiWB;
 
     private ExecutionContext executionContext;
 
     private Date start;
 
-    public ItemDocumentWriter(DatabaseInsert di) throws SQLException, IOException {
-        this.di = di;
+    public ItemDocumentWriterAPI(ApiWB apiWB) throws Exception {
+        this.apiWB = apiWB;
+        this.csrftoken = apiWB.connexionWB();
+        //logger.info("Connexion ApiWB dans IDWriterAPI :"+csrftoken);
     }
 
     @Override
-    public void write (Chunk<? extends List<ItemDocument>> chunk) throws Exception {
+    public void write (Chunk<? extends List<ItemDocument>> chunk) {
         int nbItem = 0;
+
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put("action", "wbeditentity");
+        params.put("new", "item");
+        params.put("token", csrftoken);
+        params.put("format", "json");
+
         try {
             for (List<ItemDocument> itemDocumentList : chunk) {
                 for (ItemDocument itemDocument : itemDocumentList) {
-                    di.createItem(JsonSerializer.getJsonString(itemDocument));
+                    params.put("data", JsonSerializer.getJsonString(itemDocument));
+                    JSONObject json = apiWB.postJson(params);
+                    //logger.info("json : "+json.toString());
                     nbItem++;
                 }
-                di.commit();
             }
             this.executionContext.putInt( "nbItem", this.executionContext.getInt( "nbItem", 0 ) + nbItem );
         }

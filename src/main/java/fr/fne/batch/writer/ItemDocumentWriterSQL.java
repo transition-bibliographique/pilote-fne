@@ -1,6 +1,7 @@
 package fr.fne.batch.writer;
 
-import fr.fne.batch.util.DatabaseInsert;
+import fr.fne.batch.model.dto.Personne;
+import fr.fne.batch.service.PersonneService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.StepExecution;
@@ -9,37 +10,48 @@ import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemWriter;
-import org.wikidata.wdtk.datamodel.helpers.JsonSerializer;
-import org.wikidata.wdtk.datamodel.interfaces.ItemDocument;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-public class ItemDocumentWriterSQL implements ItemWriter<List<ItemDocument>> {
+public class ItemDocumentWriterSQL implements ItemWriter<List<Personne>> {
     private final Logger logger = LoggerFactory.getLogger(ItemDocumentWriterSQL.class);
-
-    private final DatabaseInsert di;
 
     private ExecutionContext executionContext;
 
     private Date start;
 
-    public ItemDocumentWriterSQL(DatabaseInsert di) throws SQLException, IOException {
-        this.di = di;
+    JdbcTemplate jdbcTemplate;
+
+    public ItemDocumentWriterSQL(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public void write (Chunk<? extends List<ItemDocument>> chunk) throws Exception {
+    public void write (Chunk<? extends List<Personne>> chunk) throws Exception {
         int nbItem = 0;
         try {
-            for (List<ItemDocument> itemDocumentList : chunk) {
-                for (ItemDocument itemDocument : itemDocumentList) {
-                    di.createItem(JsonSerializer.getJsonString(itemDocument));
+            for (List<Personne> personneList : chunk) {
+                for (Personne personne : personneList) {
+                    logger.info(personne.getContenu());
+
+                    //personneService.savePersonne(personne.getNom());
+                    jdbcTemplate.execute("select * from ag_catalog.cypher ('family_tree', $$\n" +
+                                    "        create (:Person {" +
+                                    "               name:'"+personne.getNom()+"'," +
+                                    "               titles:['Test']," +
+                                    "               year_born: 1980," +
+                                    "               year_died: 2068" +
+                                    "        })\n" +
+                                    "$$) as (person ag_catalog.agtype)");
+
                     nbItem++;
                 }
-                di.commit();
+                //di.commit();
             }
             this.executionContext.putInt( "nbItem", this.executionContext.getInt( "nbItem", 0 ) + nbItem );
         }
@@ -62,6 +74,10 @@ public class ItemDocumentWriterSQL implements ItemWriter<List<ItemDocument>> {
         Date end = new Date();
         long diff = end.getTime() - start.getTime();
         diff = diff / 1000; //en secondes
+
+        if (diff == 0){
+            diff = 1;
+        }
 
         int nbItem = this.executionContext.getInt( "nbItem", 0 );
 

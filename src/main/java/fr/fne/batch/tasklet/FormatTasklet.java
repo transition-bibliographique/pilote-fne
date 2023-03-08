@@ -1,6 +1,5 @@
 package fr.fne.batch.tasklet;
 
-import fr.fne.batch.util.ApiWB;
 import fr.fne.batch.util.Format;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,24 +16,15 @@ public class FormatTasklet implements Tasklet {
     private final Logger logger = LoggerFactory.getLogger(FormatTasklet.class);
 
     @Autowired
-    private ApiWB apiWB;
-
-    @Autowired
     private Format format;
 
     @Override
     public RepeatStatus execute (StepContribution stepContribution, ChunkContext chunkContext) throws Exception {
 
-        // Connextion à Wikibase et récupération du csrftoken
-        String csrftoken = apiWB.connexionWB();
-        logger.info("The csrftoken is : " + csrftoken);
-
         // Création du format
-        format.createWithFile(csrftoken);
-        // Map des propriétés
-        Map<String, String> props = format.get();
+        format.create();
 
-        logger.info("Nombre de propriétés chargées : " + props.size());
+        logger.info("Propriétés créées");
 
         return RepeatStatus.FINISHED;
     }

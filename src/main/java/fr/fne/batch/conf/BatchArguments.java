@@ -24,8 +24,6 @@ public class BatchArguments {
 
     private boolean isFormat;
 
-    private boolean isApi;
-
     /**
      * This constructor will load program's arguments at launch.
      *
@@ -47,16 +45,15 @@ public class BatchArguments {
 
             this.isFormat = this.cmd.hasOption("format");
             this.isSql = this.cmd.hasOption("sql");
-            this.isApi = this.cmd.hasOption("api");
 
-            if(!isFormat() && !isSql() && !isApi()){
-                this.formatter.printHelp("Arguments absent, utiliser -f pour la creation du format ou -s pour l'insertion sql ou -a pour l'insertion par api", this.options);
+            if(!isFormat() && !isSql()){
+                this.formatter.printHelp("Arguments absent, utiliser -f pour la creation du format ou -s pour l'insertion sql", this.options);
                 // Stop the batch.
                 this.initiateShutdown();
             }
 
         } catch (ParseException e) {
-            this.formatter.printHelp("Arguments non valides, utiliser -f pour la creation du format ou -s pour l'insertion sql ou -a pour l'insertion par api", this.options);
+            this.formatter.printHelp("Arguments non valides, utiliser -f pour la creation du format ou -s pour l'insertion sql", this.options);
 
             // Stop the batch.
             this.initiateShutdown();
@@ -72,10 +69,6 @@ public class BatchArguments {
         nameOption.setRequired(false);
         this.options.addOption(nameOption);
 
-        Option nameOption2 = new Option("a", "api", false, "Insertion des données par api");
-        nameOption2.setRequired(false);
-        this.options.addOption(nameOption2);
-
         Option filepathOption = new Option("f", "format", false, "Création du format par api");
         filepathOption.setRequired(false);
         this.options.addOption(filepathOption);
@@ -83,10 +76,6 @@ public class BatchArguments {
 
     public boolean isSql () {
         return isSql;
-    }
-
-    public boolean isApi () {
-        return isApi;
     }
 
     public boolean isFormat () { return isFormat; }

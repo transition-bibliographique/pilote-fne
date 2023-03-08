@@ -1,11 +1,11 @@
 package fr.fne.batch.model.autorite;
 
 
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 @NoArgsConstructor

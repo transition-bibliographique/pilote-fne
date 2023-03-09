@@ -1,5 +1,6 @@
 package fr.fne.batch.writer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.fne.batch.model.dto.Personne;
 import fr.fne.batch.service.PersonneService;
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ public class ItemDocumentWriterSQL implements ItemWriter<List<Personne>> {
 
     JdbcTemplate jdbcTemplate;
 
+    ObjectMapper objectMapper = new ObjectMapper();
+
     public ItemDocumentWriterSQL(JdbcTemplate jdbcTemplate) throws SQLException, IOException {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -37,10 +40,14 @@ public class ItemDocumentWriterSQL implements ItemWriter<List<Personne>> {
         try {
             for (List<Personne> personneList : chunk) {
                 for (Personne personne : personneList) {
-                    logger.info(personne.getContenu());
+
+                    String personneInsert = personne.getContenu().replaceAll("'","\\\\'").replaceAll("\",\"","',").replaceAll(":\"",":'").replaceAll("\"}","'}").replaceAll("\"","") ;
+                    logger.info(personneInsert);
+
+                    //logger.info(objectMapper.writeValueAsString(personne));
 
                     //personneService.savePersonne(personne.getNom());
-                    jdbcTemplate.execute("select * from ag_catalog.cypher ('family_tree', $$\n" +
+                    /*jdbcTemplate.execute("select * from ag_catalog.cypher ('family_tree', $$\n" +
                                     "        create (:Person {" +
                                     "               name:'"+personne.getNom()+"'," +
                                     "               titles:['Test']," +
@@ -48,6 +55,11 @@ public class ItemDocumentWriterSQL implements ItemWriter<List<Personne>> {
                                     "               year_died: 2068" +
                                     "        })\n" +
                                     "$$) as (person ag_catalog.agtype)");
+                    */
+
+                    jdbcTemplate.execute("select * from ag_catalog.cypher ('family_tree', $$\n" +
+                            "        create (:Person "+personneInsert+")\n" +
+                            "$$) as (person ag_catalog.agtype)");
 
                     nbItem++;
                 }

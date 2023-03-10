@@ -12,11 +12,15 @@ import lombok.Setter;
 @Setter
 @Entity
 public class Personne {
+
+    @XmlElement(name = "ppn")
+    @Id
+    private String ppn;
+
     @XmlElement(name = "contenu")
     private String contenu;
 
     @XmlElement(name = "label")
-    @Id
     private String label;
 
     @XmlElement(name = "description")

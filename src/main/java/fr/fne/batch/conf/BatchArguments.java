@@ -24,6 +24,8 @@ public class BatchArguments {
 
     private boolean isFormat;
 
+    private boolean isLink;
+
     /**
      * This constructor will load program's arguments at launch.
      *
@@ -45,15 +47,16 @@ public class BatchArguments {
 
             this.isFormat = this.cmd.hasOption("format");
             this.isSql = this.cmd.hasOption("sql");
+            this.isLink = this.cmd.hasOption("link");
 
-            if(!isFormat() && !isSql()){
-                this.formatter.printHelp("Arguments absent, utiliser -f pour la creation du format ou -s pour l'insertion sql", this.options);
+            if(!isFormat() && !isSql() && !isLink()){
+                this.formatter.printHelp("Arguments absent, utiliser -f pour la creation du format ou -s pour l'insertion sql ou -l pour la création des liens", this.options);
                 // Stop the batch.
                 this.initiateShutdown();
             }
 
         } catch (ParseException e) {
-            this.formatter.printHelp("Arguments non valides, utiliser -f pour la creation du format ou -s pour l'insertion sql", this.options);
+            this.formatter.printHelp("Arguments non valides, utiliser -f pour la creation du format ou -s pour l'insertion sql ou -l pour la création des liens", this.options);
 
             // Stop the batch.
             this.initiateShutdown();
@@ -72,6 +75,10 @@ public class BatchArguments {
         Option filepathOption = new Option("f", "format", false, "Création du format par api");
         filepathOption.setRequired(false);
         this.options.addOption(filepathOption);
+
+        Option linkOption = new Option("l", "link", false, "Création des liens");
+        linkOption.setRequired(false);
+        this.options.addOption(linkOption);
     }
 
     public boolean isSql () {
@@ -79,6 +86,8 @@ public class BatchArguments {
     }
 
     public boolean isFormat () { return isFormat; }
+
+    public boolean isLink() { return isLink; }
 
     /**
      * End the batch.

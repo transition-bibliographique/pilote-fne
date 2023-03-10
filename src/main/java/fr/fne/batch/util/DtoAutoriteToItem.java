@@ -164,6 +164,7 @@ public class DtoAutoriteToItem {
             for (Controlfield c : r.getControlfieldList()){
                 if (c.getTag().equalsIgnoreCase("001")){
                     ppn = c.getValue(); //Pour construire le label
+                    p.setPpn(ppn);
                 }
 
                 if (c.getTag().equalsIgnoreCase("003")){

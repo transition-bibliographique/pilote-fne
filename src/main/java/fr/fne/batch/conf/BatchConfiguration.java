@@ -1,10 +1,12 @@
 package fr.fne.batch.conf;
 
 import fr.fne.batch.model.dto.Personne;
+import fr.fne.batch.processor.AGEItemProcessor;
 import fr.fne.batch.processor.CollectionItemProcessor;
 import fr.fne.batch.service.PersonneService;
 import fr.fne.batch.tasklet.FormatTasklet;
 import fr.fne.batch.util.Format;
+import fr.fne.batch.writer.ItemDocumentWriterLink;
 import fr.fne.batch.writer.ItemDocumentWriterSQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +16,11 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.batch.item.support.IteratorItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,12 +69,6 @@ public class BatchConfiguration {
 
     @Bean
     public ItemReader<File> reader () throws Exception {
-
-        //format.createWithFile(csrftoken);
-
-        //Utilisation d'un dump des notices (5000 notices par fichier):
-        //Le dump complet est disponible ici (Abes, sur KAT): /applis/portail/SitemapNoticesSudoc/noticesautorites/dump/
-        //Pour tester : utiliser l'échantillon qui se trouve dans resources/dump/
         List<File> files = Files.walk(Paths.get(cheminDump))
                 .filter(Files::isRegularFile)
                 .map(Path::toFile)
@@ -78,9 +77,36 @@ public class BatchConfiguration {
         return new IteratorItemReader<>(files);
     }
 
+    /*@Bean
+    public JdbcCursorItemReader<Personne> readerAGE() {
+        return new JdbcCursorItemReaderBuilder<Personne>()
+                .name("creditReader")
+                .sql("select * from ag_catalog.cypher('personnes', $$\n" +
+                        " MATCH(v)" +
+                        " return v \n" +
+                        "$$) as (v ag_catalog.agtype)")
+                .rowMapper(new PersonneRowMapper())
+                .build();
+    }*/
+
+    @Bean
+    public ItemReader<Personne> readerAGE () throws Exception {
+        List<Personne> rows = jdbcTemplate.query("select * from ag_catalog.cypher('personnes', $$\n" +
+                " MATCH(v)" +
+                " return v \n" +
+                "$$) as (v ag_catalog.agtype)",new PersonneRowMapper());
+
+        return new IteratorItemReader<>(rows);
+    }
+
     @Bean
     public CollectionItemProcessor processor() {
         return new CollectionItemProcessor();
+    }
+
+    @Bean
+    public AGEItemProcessor processorAGE() {
+        return new AGEItemProcessor();
     }
 
     @Bean
@@ -89,6 +115,11 @@ public class BatchConfiguration {
         //connection.setAutoCommit(false);
         //DatabaseInsert di = new DatabaseInsert(connection);
         return new ItemDocumentWriterSQL(jdbcTemplate);
+    }
+
+    @Bean
+    public ItemWriter writerLink() throws SQLException, IOException {
+        return new ItemDocumentWriterLink(jdbcTemplate);
     }
 
     @Bean
@@ -123,6 +154,18 @@ public class BatchConfiguration {
     }
 
     @Bean
+    public Step stepLink (JobRepository jobRepository, PlatformTransactionManager transactionManager) throws Exception {
+        return new StepBuilder("stepLink", jobRepository)
+                .<Personne, Personne> chunk(chunkSize, transactionManager)
+                .reader(this.readerAGE())
+                .processor(this.processorAGE())
+                .writer(this.writerLink())
+                //.taskExecutor(taskExecutorAsync())
+                //.taskExecutor(taskExecutorMultiThread())
+                .build();
+    }
+
+    @Bean
     public SimpleAsyncTaskExecutor taskExecutorAsync(){
         SimpleAsyncTaskExecutor simpleAsyncTaskExecutor = new SimpleAsyncTaskExecutor();
         //simpleAsyncTaskExecutor.setConcurrencyLimit(10); //Par défaut, illimité
@@ -140,7 +183,7 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Job importUserJob(JobRepository jobRepository, Step stepDataSQL, Step stepFormat) {
+    public Job importUserJob(JobRepository jobRepository, Step stepDataSQL, Step stepFormat, Step stepLink) {
 
         // Seulement le format
         if (batchArguments.isFormat()){
@@ -154,6 +197,13 @@ public class BatchConfiguration {
             return new JobBuilder("insertAGE", jobRepository)
                     .incrementer(new RunIdIncrementer())
                     .flow(stepDataSQL)
+                    .end()
+                    .build();
+        }
+        else if (batchArguments.isLink()){
+            return new JobBuilder("linkAGE", jobRepository)
+                    .incrementer(new RunIdIncrementer())
+                    .flow(stepLink)
                     .end()
                     .build();
         }

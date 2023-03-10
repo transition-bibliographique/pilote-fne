@@ -41,25 +41,40 @@ public class ItemDocumentWriterSQL implements ItemWriter<List<Personne>> {
             for (List<Personne> personneList : chunk) {
                 for (Personne personne : personneList) {
 
+                    //personneService.savePersonne(personne.getNom());
+
+                    /*
                     String personneInsert = personne.getContenu().replaceAll("'","\\\\'").replaceAll("\",\"","',").replaceAll(":\"",":'").replaceAll("\"}","'}").replaceAll("\"","") ;
                     logger.info(personneInsert);
-
                     //logger.info(objectMapper.writeValueAsString(personne));
-
-                    //personneService.savePersonne(personne.getNom());
-                    /*jdbcTemplate.execute("select * from ag_catalog.cypher ('family_tree', $$\n" +
-                                    "        create (:Person {" +
-                                    "               name:'"+personne.getNom()+"'," +
-                                    "               titles:['Test']," +
-                                    "               year_born: 1980," +
-                                    "               year_died: 2068" +
-                                    "        })\n" +
-                                    "$$) as (person ag_catalog.agtype)");
-                    */
 
                     jdbcTemplate.execute("select * from ag_catalog.cypher ('family_tree', $$\n" +
                             "        create (:Person "+personneInsert+")\n" +
                             "$$) as (person ag_catalog.agtype)");
+                    */
+
+                    jdbcTemplate.execute("select * from ag_catalog.cypher ('personnes', $$\n" +
+                                    "        create (:Person {" +
+                                    "               ppn:'"+personne.getPpn()+"'," +
+                                    "               label:'"+personne.getLabel()+"'," +
+                                    "               description:'"+personne.getDescription()+"'," +
+                                    "               urlPerenne:'"+personne.getUrlPerenne()+"'," +
+                                    "               type:'"+personne.getType()+"'," +
+                                    "               idISNI:'"+personne.getIdISNI()+"'," +
+                                    "               nom:'"+personne.getNom()+"'," +
+                                    "               prenom:'"+personne.getPrenom()+"'," +
+                                    "               dateNaissance:'"+personne.getDateNaissance()+"'," +
+                                    "               dateDeces:'"+personne.getDateDeces()+"'," +
+                                    "               activite:'"+personne.getActivite().replaceAll("'","\\\\'")+"'," +
+                                    "               noteBio:'"+personne.getNoteBio()+"'," +
+                                    "               titreOeuvre:'"+personne.getTitreOeuvre()+"'," +
+                                    "               langue:'"+personne.getLangue()+"'," +
+                                    "               pointAcces:'"+personne.getPointAcces()+"'" +
+                                    "        })\n" +
+                                    "$$) as (person ag_catalog.agtype)");
+
+
+
 
                     nbItem++;
                 }
